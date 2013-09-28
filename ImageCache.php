@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * The primary class file for PHP Image Compressor & Caching
+ *
+ * This file is to be used in any PHP project that requires image compression
+ *
+ * @package PHP Image Compressor & Caching
+ * @author Erik Nielsen (erik@312development.com) (http://312development.com)
+ *
+ */
+
 class ImageCache {
 	private $root; /** @string  */
 	private $src_root; /** @string  */
