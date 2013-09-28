@@ -22,7 +22,7 @@ $image = new ImageCache();
 
 Possible parameters include:
 
-`
+```
 $image = new ImageCache(
 	$filebase = '', $dir = null, $create_dir = true, $opts = array()
 );
@@ -32,7 +32,7 @@ $image = new ImageCache(
  * @param $create_dir (bool) - Whether or not to create a new directory for the compressed images
  * @param $opts (array) - An array of available options that the user can include to the overwrite default settings
  */
-`
+```
 
 Then compress the image by calling it by it's filename:
 
