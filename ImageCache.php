@@ -16,6 +16,7 @@ class ImageCache {
 	private $created_dir; /** @bool  */
 	private $opts; /** @array  */
 	private $base; /** @string  */
+	private $pre_memory_limit; /** @string; gets the users memory limit */
 
 	public function __construct($filebase = '', $dir = null, $create_dir = true, $opts = array()) {
 		/**
@@ -82,6 +83,7 @@ class ImageCache {
 		if($out = $this->checkExists($dest))
 			return $out;
 		$info = getimagesize($src);
+		$this->allocateMemory('set');
 		switch($info['mime']) {
 			case 'image/jpeg' :
 				$image = imagecreatefromjpeg($src);
@@ -93,6 +95,7 @@ class ImageCache {
 				$image = imagecreatefrompng($src);
 				break;
 		}
+		$this->allocateMemory('reset');
 		if($this->created_dir)
 			$dest = $this->root . '/' . $dest;
 
@@ -107,6 +110,26 @@ class ImageCache {
 			'height' => $info[1]
 		);
 		return $out;
+	}
+
+	private function allocateMemory($method) {
+		/**
+		 * 
+		 * Allocates additional memory to the program if needed
+		 * 
+		 * @param $method (string) - Either 'set' or 'reset' - if anything else, will return false
+		 * 
+		 */
+		if($method === 'set') {
+			$amt = ini_get('memory_limit');
+			$this->pre_memory_limit = $amt;
+			if(intval($amt) < 128) {
+				ini_set('memory_limit', '128M');
+			}
+		} elseif($method === 'reset') {
+			$org_mem = $this->pre_memory_limit;
+			ini_set('memory_limit', $orig_mem . 'M');
+		}
 	}
 
 	private function checkExists($img) {
