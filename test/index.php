@@ -7,11 +7,11 @@
 </head>
 <body>
 	<?php 
-		$image = new ImageCache('http://example.com/test/images', dirname(__FILE__) . '/images');
+		// I've defined the base URL to be included in the source, as well as the images directory
+		$image = new ImageCache('http://test/test/images', dirname(__FILE__) . '/images');
+		// Include the filename without the path information
+		$d = $image->compress('chicago-skyline.jpg');
 	?>
-		<?php $d = $image->compress('500x300.gif'); ?>
-		<img src="<?php echo $d['src']; ?>" height="<?php echo $d['height']; ?>" width="<?php echo $d['width']; ?>">
-		<?php $d = $image->compress('200x125.gif'); ?>
 		<img src="<?php echo $d['src']; ?>" height="<?php echo $d['height']; ?>" width="<?php echo $d['width']; ?>">
 	
 </body>
