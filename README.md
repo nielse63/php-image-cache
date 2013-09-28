@@ -10,7 +10,9 @@ You can either install the script manually using the `require` method:
 require 'ImageCache.php';
 ```
 
-Or (preferred) you can install the script with <a href="http://getcomposer.org" target="_blank">Composer</a>.</p>
+Or (preferred) you can install the script with <a href="http://getcomposer.org" target="_blank">Composer</a>.
+
+Install Composer in the root directory of your project, and create a `composer.json` file.
 
 In your `composer.json` file:
 
