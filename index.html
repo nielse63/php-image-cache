@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>PHP Image Cache</title>
+	<meta name="description" content="Image Cache is a tiny PHP class that accepts a .png, .jpg, or .gif image then compresses, moves, and caches the image in the user's browser.  It then returns the new source of the image to be printed in an image tag.">
+	<meta name="HandheldFriendly" content="True">
+	<meta name="og:title" content="PHP Image Cache"/>
+	<meta name="og:type" content="movie"/>
+	<meta name="og:url" content="http://nielse63.github.io/php-image-cache"/>
+	<meta name="og:image" content="http://nielse63.github.io/php-image-cache/images/meta-image.png"/>
+	<meta name="og:site_name" content="PHP Image Cache"/>
+	<meta name="og:description" content="Image Cache is a tiny PHP class that accepts a .png, .jpg, or .gif image then compresses, moves, and caches the image in the user's browser.  It then returns the new source of the image to be printed in an image tag." />
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:url" content="http://nielse63.github.io/php-image-cache">
+	<meta name="twitter:title" content="PHP Image Cache">
+	<meta name="twitter:description" content="Image Cache is a tiny PHP class that accepts a .png, .jpg, or .gif image then compresses, moves, and caches the image in the user's browser.  It then returns the new source of the image to be printed in an image tag.">
+	<meta name="twitter:image" content="http://nielse63.github.io/php-image-cache/images/meta-image.png">
+	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+	<link rel="apple-touch-icon" sizes="57x57" href="images/apple-touch-icon-57x57.png" />
+	<link rel="apple-touch-icon" sizes="60x60" href="images/apple-touch-icon-60x60.png" />
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png" />
+	<link rel="apple-touch-icon" sizes="76x76" href="images/apple-touch-icon-76x76.png" />
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png" />
+	<link rel="apple-touch-icon" sizes="120x120" href="images/apple-touch-icon-120x120.png" />
+	<link rel="apple-touch-icon" sizes="144x144" href="images/apple-touch-icon-144x144.png" />
+	<link rel="apple-touch-icon" sizes="152x152" href="images/apple-touch-icon-152x152.png" />
+	<link rel="me" type="text/html" href="https://plus.google.com/u/1/115900369234329777642">
+	<meta name="HandheldFriendly" content="True">
+	<meta name="MobileOptimized" content="320">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta http-equiv="pragma" content="cache">
+	<meta http-equiv="cache-control" content="public, cache">
+ 
+
+	<link href="http://fonts.googleapis.com/css?family=Lato:100,300,700" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="css/colorbox.css" type="text/css">
+	<link rel="stylesheet" href="css/shCore.css" type="text/css">
+	<link rel="stylesheet" href="css/shThemeDefault.css" type="text/css">
+	<!-- <link rel="stylesheet" href="css/pictonic.css" type="text/css"> -->
+	<style>
+		@import url('http://weloveiconfonts.com/api/?family=zocial');
+	</style>
+	<link rel="stylesheet" href="css/main.css" type="text/css">
+
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<script src="js/plugins/jquery.colorbox-min.js"></script>
+	<script src="js/plugins/shCore.js"></script>
+	<script src="js/plugins/shBrushPhp.js"></script>
+	<script src="js/plugins/shBrushJScript.js"></script>
+
+</head>
+<body itemscope itemtype="http://schema.org/Code">
+
+<a href="https://github.com/nielse63/php-image-cache"><img style="position: absolute; top: 0; left: 0; border: 0; z-index: 11;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+<header class="header">
+	<div class="container">
+		<nav class="row main-nav tc">
+			<ul class="horiz-row">
+				<li><a href="#download" class="btn">Download</a></li>
+				<li><a href="#description" class="btn">Description</a></li>
+				<li><a href="#usage" class="btn">Usage/Examples</a></li>
+				<li><a href="#installation" class="btn">Installation</a></li>
+				<li><a href="#contribute" class="btn">Contributing</a></li>
+			</ul>
+		</nav>
+	</div>
+</header>
+<section class="headline" id="download">
+	<div class="container row">
+		<h1 class="site-title tc" itemprop="name" itemscope itemtype="http://schema.org/Code">
+			PHP Image Compression &amp; Caching
+		</h1>
+		<ul class="horiz-row row tc">
+			<li class="col four push-two"><a href="https://github.com/nielse63/image-cache/archive/master.zip" class="white-btn btn btn-large block-btn" target="_blank">Download .zip (13.1k)</a></li>
+			<li class="col four"><a href="https://github.com/nielse63/image-cache" class="white-btn btn btn-large block-btn" target="_blank" itemscope itemtype="http://schema.org/Code" itemprop="codeRepository">View on Github</a></li>
+		</ul>
+	</div>
+</section>
+<section class="main">
+	<div class="panel" id="description">
+		<div class="row" itemprop="description" itemscope itemtype="http://schema.org/Code">
+			<h2>Description</h2>
+			<p>Image Cache is a tiny <span itemscope itemtype="http://schema.org/Code" itemprop="programmingLanguage">PHP</span> class that accepts a .png, .jpg, or .gif image then compresses, moves, and caches the image in the user's browser.  It then returns the new source of the image to be printed in an image tag.</p>
+			<p>By compressing and caching images, page load time can be dramatically decreased.  Page load time is <a href="http://googleresearch.blogspot.com/2009/06/speed-matters.html" target="_blank">one of the biggest factors in user retention</a> and we've <a href="http://www.peer1.com/knowledgebase/how-slow-website-impacts-your-visitors-and-sales" target="_blank">all</a> <a href="http://blog.kissmetrics.com/loading-time/" target"_blank">seen</a> <a href="http://www.forbes.com/sites/rogerdooley/2012/12/04/fast-sites/" target="_blank">the studies</a> on how load time affects a companies bottom line.  However, when trying to calculate for these factors I was hard pressed to find a simple and direct PHP class to cache and load images.  So I made one.</p>
+			<p>Here's an example of the difference that this class can make.  Below, on the left, is a screenshot of a large .png file on a local test environment being loaded in 2.19 seconds.  On the right is the screenshot taken after the script was run and the image was compressed and cached, being loaded within 23 milliseconds.  As a result of the script, image load time was reduced by 2167 milliseconds &ndash; <strong>that's a 98.95% reduction in resource load time!</strong></p>
+			<ul class="horiz-row tc">
+				<li>
+					<img src="images/ss1.jpg" data-img="images/ss1-full.jpg" alt="">
+					<p><em>Before the script was run</em></p>
+				</li>
+				<li><img src="images/ss2.jpg" data-img="images/ss2-full.jpg" alt="">
+					<p><em>After the script was run</em></p></li>
+			</ul>
+		</div>
+	</div>
+	<div class="panel" id="usage">
+		<div class="row">
+			<h2>Basic Usage</h2>
+			<p>The class is pretty small, and very basic.  First, include the file and initialize the class:</p>
+			<pre  class="brush: php">
+				require 'ImageCache.php';
+				$image = new ImageCache();
+			</pre>
+			<p><strong>Note: if you're loading with composer, you'll call <span class="inline-code">autoload.php</span>, but you probably don't need to be told that.</strong></p>
+			<p>The class has four pre-defined parameters which are defined in the constructor function:</p>
+			<pre  class="brush: php">
+			$image = new ImageCache(
+				$filebase = '', $dir = null, $create_dir = true, $opts = array()
+			);
+			/**
+			 * @param $filebase (string) - The base URL that will be included in the final output for the image source; primarily used if you want the image source to be an absolute URL; defaults to relative.
+			 * @param $dir (string/null) - The base directory that houses the image being compressed; defaults to the location of ImageCache.php.
+			 * @param $create_dir (bool) - Whether or not to create a new directory for the compressed images; defaults to "true"
+			 * @param $opts (array) - An array of available options that the user can include to the overwrite default settings.  Mostly just for forward-compatibility at the moment.
+			 */
+			</pre>
+			<p>Once the script is initialized and your have your variables set (if need be), compress the image with the <span class="inline-code">compress</span> method:</p>
+			<pre  class="brush: php">
+			$image_filename = 'chicago-skyline.png';
+			$d = $image->compress($image_filname);
+			</pre>
+			<p>The results will be returned in an array containing the soure of the compressed image, as well as the width and height:</p>
+			<pre  class="brush: php">
+			/**
+				This is an example of the printout of our return variable from $image->compress
+			 */
+			$d = array(
+				'src' => '/compressed/chicago-skyline-compressed.jpg?modtime=1380389439',
+				'width' => 4770,
+				'height' => 2689
+			);
+			echo '<img src="' . $d['src'] . '" width="' . $d['width'] . '" height="' . $d['height'] . '">';
+			</pre>
+			<p>*Note: currently, the method only accepts string, though I do plan on including the ability to input and return an array of images.</p>
+		</div>
+	</div>
+	<div class="panel" id="installation">
+		<div class="row">
+			<h2>Installation</h2>
+			<p>You can either install the script manually using the <span class="inline-code">require</span> method:</p>
+			<pre class="brush: php;">require 'ImageCache.php';</pre>
+			<p>Or (preferred) you can install the script with <a href="http://getcomposer.org" target="_blank">Composer</a>.</p>
+			<p>Install Composer in the root directory of your project, and create a <span class="inline-code">composer.json</span> file.</p>
+			<p>In your <span class="inline-code">composer.json</span> file:</p>
+			<pre class="brush: js;">
+				{
+					"require" : {
+						"nielse63/phpimagecache": "dev-master"
+					}
+				}
+			</pre>
+			<p>This is currently the first release of Image Cache, so in this example you'll be able to update your script with any updates made to Image Cache.  If, however, you don't want access to any potential updates, remove the tilda form the "version" value.</p>
+			<p>Navigate to your project root and run the <span class="inline-code">install</span> command of <span class="inline-code">composer.phar</span>.</p>
+			<pre class="brush: js;">$ php composer.phar install</pre>
+			<p>From there, include the <span class="inline-code">autoload.php</span> file in your project, and initilize the class as normal.</p>
+		</div>
+	</div>
+	<div class="panel" id="contribute">
+		<div class="row">
+			<h2>Contributing</h2>
+			<p>Contributing to the project would be a massive help in maintaining and extending the script.  It has a lot of potential, and any help would be awesome.</p>
+			<p>If you're interested in contributing, <a href="https://github.com/nielse63/image-cache/pulls" taret="_blank">issue a pull request</a> on Github or email me directly at <a href="mailto:erik@312development.com">erik@312development.com</a>.</p>
+		</div>
+	</div>
+</section>
+
+
+
+<footer class="footer">
+	<ul class="horiz-row row tc">
+		<li class="col three"><a href="http://api.addthis.com/oexchange/0.8/forward/facebook/offer?url=http%3A%2F%2Fnielse63.github.io%2Fphp-image-cache%2F&title=PHP+Image+Compression+and+Caching&description=Image+Cache+is+a+tiny+PHP+class+that+accepts+a+.png%2C+.jpg%2C+or+.gif+image+then+compresses%2C+moves%2C+and+caches+the+image+in+the+user%27s+browser.+It+then+returns+the+new+source+of+the+image+to+be+printed+in+an+image+tag.&pubid=ra-506aca9e458a07e3&ct=1&shortener=bitly&bitly.login=nielse63&bitly.apiKey=R_2832744ee5042921cc59e6a3106440b4" target="_blank" class="btn btn-large block-btn zocial-facebook">Share on Facebook</a></li>
+		<li class="col three"><a href="http://api.addthis.com/oexchange/0.8/forward/twitter/offer?url=http%3A%2F%2Fnielse63.github.io%2Fphp-image-cache%2F&title=PHP+Image+Compression+and+Caching+(from+@erikkylenielsen)&description=Image+Cache+is+a+tiny+PHP+class+that+accepts+a+.png%2C+.jpg%2C+or+.gif+image+then+compresses%2C+moves%2C+and+caches+the+image+in+the+user%27s+browser.+It+then+returns+the+new+source+of+the+image+to+be+printed+in+an+image+tag.&pubid=ra-506aca9e458a07e3&ct=1&shortener=bitly&bitly.login=nielse63&bitly.apiKey=R_2832744ee5042921cc59e6a3106440b4" target="_blank" class="btn btn-large block-btn zocial-twitter">Share on Twitter</a></li>
+		<li class="col three"><a href="http://api.addthis.com/oexchange/0.8/forward/google_plusone_share/offer?url=http%3A%2F%2Fnielse63.github.io%2Fphp-image-cache%2F&title=PHP+Image+Compression+and+Caching&description=Image+Cache+is+a+tiny+PHP+class+that+accepts+a+.png%2C+.jpg%2C+or+.gif+image+then+compresses%2C+moves%2C+and+caches+the+image+in+the+user%27s+browser.+It+then+returns+the+new+source+of+the+image+to+be+printed+in+an+image+tag.&pubid=ra-506aca9e458a07e3&ct=1&shortener=bitly&bitly.login=nielse63&bitly.apiKey=R_2832744ee5042921cc59e6a3106440b4" target="_blank" class="btn btn-large block-btn zocial-googleplus">Share on Google+</a></li>
+		<li class="col three"><a href="mailto:erik@312development.com" target="_blank" class="btn btn-large block-btn zocial-gmail">Email Me</a></li>
+	</ul>
+</footer>
+
+<script src="js/custom.js"></script>
+<script>
+	SyntaxHighlighter.all();
+</script>
+<script type="text/javascript">
+	var addthis_share = {
+		templates : {
+			twitter: 'PHP Image Caching and Compression {{url}} (from @erikkylenielsen)'	
+		}
+	};
+</script>
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-506aca9e458a07e3"></script>
+</body>
+</html>
