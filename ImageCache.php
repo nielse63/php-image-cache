@@ -100,6 +100,7 @@ class ImageCache {
 			$dest = $this->root . '/' . $dest;
 
 		imagejpeg($image, $dest, $this->opts['quality']);
+		$this->setHeaders();
 		$info = getimagesize($dest);
 		$path = pathinfo($dest);
 		$src = '/' . end(explode('/', $path['dirname'])) . '/' . $path['basename'];
@@ -110,6 +111,18 @@ class ImageCache {
 			'height' => $info[1]
 		);
 		return $out;
+	}
+
+	private function setHeaders($new = true) {
+		$one_month = 60 * 60 * 24 * 30; //One Month
+		$now = date(DATE_RFC2822);
+		$one_month_from_now = date(DATE_RFC2822, time() + $one_month);
+		header('Cache-Control: private, max-age=' . $one_month . ', pre-check=' . $one_month);
+		header('Pragma: private');
+		if($new) {
+			header('Last-Modified: ' . $now . ', true, 304');
+			header('Expires: ' . $one_month_from_now);	
+		}
 	}
 
 	private function allocateMemory($method) {
@@ -151,6 +164,7 @@ class ImageCache {
 				'width' => $info[0],
 				'height' => $info[1]
 			);
+			$this->setHeaders(false);
 			return $out;
 		}
 		return false;
