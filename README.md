@@ -27,9 +27,11 @@ In your `composer.json` file:
 This is currently the first release of Image Cache, so in this example you'll be able to update your script with any updates made to Image Cache.  If, however, you don't want access to any potential updates, remove the tilda form the "version" value.
 
 Navigate to your project root and run the `install` command of `composer.phar`.
+
 ```
 $ php composer.phar install
 ```
+
 From there, include the `vendor/autoload.php` file in your project, and initilize the class as normal.
 
 ## Testing
