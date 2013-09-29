@@ -77,3 +77,11 @@ If you're interested in contributing, <a href="https://github.com/nielse63/image
 Create Commons Attribution Lisence:
 
 <a href="http://freedomdefined.org/Licenses/CC-BY">http://freedomdefined.org/Licenses/CC-BY</a>
+
+### .gitignore
+
+Allows for files to be ignored in builds.
+
+### .travis.yml
+
+This is used on <a href="http://travis-ci.org" taret="_blank">travis-ci.org</a> for continuous integration testing.
