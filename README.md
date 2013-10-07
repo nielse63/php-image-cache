@@ -68,6 +68,16 @@ This will return an array of information on the compressed image, including the 
 <img src="<?php echo $compressed['src']; ?>" height="<?php echo $compressed['height']; ?>" width="<?php echo $compressed['width']; ?>">
 ```
 
+## What's Next
+
+Future development changes include:
+<ul>
+	<li>Integration with Tim Thumb and other image cropping libraries</li>
+	<li>Increase browser capabilities (and further testing down to IE 8)</li>
+	<li>Fixing the issue with 304 headers being ignored</li>
+	<li>More options, better documentation, more forms of output, etc.</li>
+</ul>
+
 ## Contributing changes
 
 Contributing to the project would be a massive help in maintaining and extending the script.  It has a lot of potential, and any help would be awesome.
