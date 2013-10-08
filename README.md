@@ -2,6 +2,8 @@
 
 Image Cache is a very simple PHP class that accepts an image source and will compress and cache the file, move it to a new directory, and returns the new source for the image.
 
+Support this project by donating on <a href="https://www.gittip.com/nielse63/" target="_blank">Gittip</a>.
+
 ## Installation
 
 You can either install the script manually using the `require` method:
@@ -97,3 +99,7 @@ Allows for files to be ignored in builds.
 ### .travis.yml
 
 This is used on <a href="http://travis-ci.org" taret="_blank">travis-ci.org</a> for continuous integration testing.
+
+
+
+Support this project by donating on <a href="https://www.gittip.com/nielse63/" target="_blank">Gittip</a>.
