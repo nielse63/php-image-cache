@@ -99,6 +99,10 @@ class ImageCache {
 		if($this->created_dir)
 			$dest = $this->root . '/' . $dest;
 
+		//TODO: Better error handling for when image is null
+		if(is_null($image))
+			return false;
+
 		imagejpeg($image, $dest, $this->opts['quality']);
 		$this->setHeaders();
 		$info = getimagesize($dest);
