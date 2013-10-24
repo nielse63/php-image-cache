@@ -103,3 +103,6 @@ This is used on <a href="http://travis-ci.org" taret="_blank">travis-ci.org</a> 
 
 
 Support this project by donating on <a href="https://www.gittip.com/nielse63/" target="_blank">Gittip</a>.
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/nielse63/php-image-cache/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
