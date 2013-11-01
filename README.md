@@ -26,7 +26,7 @@ In your `composer.json` file:
 	}
 ```
 
-This is currently the first release of Image Cache, so in this example you'll be able to update your script with any updates made to Image Cache.  If, however, you don't want access to any potential updates, remove the tilda form the "version" value.
+This is currently the first release of Image Cache, so in this example you'll be able to update your script with any updates made to Image Cache. If, however, you don't want access to any potential updates, remove the tilda form the "version" value.
 
 Navigate to your project root and run the `install` command of `composer.phar`.
 
@@ -34,7 +34,7 @@ Navigate to your project root and run the `install` command of `composer.phar`.
 $ php composer.phar install
 ```
 
-From there, include the `vendor/autoload.php` file in your project, and initilize the class as normal.
+From there, include the `vendor/autoload.php` file in your project, and initialize the class as normal.
 
 ## Testing
 
@@ -44,12 +44,12 @@ To test the script, install the full project on your server and navigate to the 
 
 Include the script in your project either with Composer or via the manual `require` method and create a new instance of the class, using the appropriate parameters if needed:
 
-`$image = new ImageCache();`
+`$image = new ImageCache\ImageCache();`
 
 Possible parameters include:
 
 ```
-$image = new ImageCache(
+$image = new ImageCache\ImageCache(
 	$filebase = '', $dir = null, $create_dir = true, $opts = array()
 );
 /**
@@ -82,7 +82,7 @@ Future development changes include:
 
 ## Contributing changes
 
-Contributing to the project would be a massive help in maintaining and extending the script.  It has a lot of potential, and any help would be awesome.
+Contributing to the project would be a massive help in maintaining and extending the script. It has a lot of potential, and any help would be awesome.
 
 If you're interested in contributing, <a href="https://github.com/nielse63/image-cache/pulls" taret="_blank">issue a pull request</a> on Github or email me directly at <a href="mailto:erik@312development.com">erik@312development.com</a>.
 
