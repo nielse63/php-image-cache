@@ -8,7 +8,7 @@ Support this project by donating on <a href="https://www.gittip.com/nielse63/" t
 
 You can either install the script manually using the `require` method:
 
-```
+```php
 require 'ImageCache.php';
 ```
 
@@ -18,7 +18,7 @@ Install Composer in the root directory of your project, and create a `composer.j
 
 In your `composer.json` file:
 
-```
+```json
 	{
 		"require" : {
 			"nielse63/phpimagecache": "dev-master"
@@ -30,7 +30,7 @@ This is currently the first release of Image Cache, so in this example you'll be
 
 Navigate to your project root and run the `install` command of `composer.phar`.
 
-```
+```bash
 $ php composer.phar install
 ```
 
@@ -44,11 +44,13 @@ To test the script, install the full project on your server and navigate to the 
 
 Include the script in your project either with Composer or via the manual `require` method and create a new instance of the class, using the appropriate parameters if needed:
 
-`$image = new ImageCache\ImageCache();`
+```php
+$image = new ImageCache\ImageCache();
+```
 
 Possible parameters include:
 
-```
+```php
 $image = new ImageCache\ImageCache(
 	$filebase = '', $dir = null, $create_dir = true, $opts = array()
 );
@@ -62,11 +64,13 @@ $image = new ImageCache\ImageCache(
 
 Then compress the image by calling it by it's filename:
 
-`$compressed = $image->compress('image.png');`
+```php
+$compressed = $image->compress('image.png');
+```
 
 This will return an array of information on the compressed image, including the source of the compressed image, the height, and the width.  It can be included in your PHP file as such:
 
-```
+```html
 <img src="<?php echo $compressed['src']; ?>" height="<?php echo $compressed['height']; ?>" width="<?php echo $compressed['width']; ?>">
 ```
 
