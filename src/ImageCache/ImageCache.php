@@ -7,6 +7,7 @@
  *
  * @package PHP Image Compressor & Caching
  * @author Erik Nielsen (erik@312development.com) (http://312development.com)
+ * @version 0.1.1
  *
  */
 
