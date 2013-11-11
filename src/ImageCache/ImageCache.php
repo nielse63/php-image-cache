@@ -21,18 +21,17 @@ class ImageCache
     private $base; /** @string  */
     private $pre_memory_limit; /** @string; gets the users memory limit */
 
-    public function __construct($filebase = '', $dir = null, $create_dir = true, $opts = array())
+    public function __construct( $dir = null, $create_dir = true, $opts = array() )
     {
         /**
-         * @param $filebase (string) - The base URL that will be included in the final output for the image source; used if image source is an absolute URL
          * @param $dir (string/null) - The base directory that houses the image being compressed
          * @param $create_dir (bool) - Whether or not to create a new directory for the compressed images
-         * @param $opts (array) - An array of available options that the user can include to the overwrite default settings
+         * @param $opts (array) - An array of available options that the user can include to the overwrite default settings; will be included later
          */
 
         $defaults = array(
             'quality' => 90,
-            'compressed_dir' => '/compressed'
+            'directory' => 'compressed'
         );
 
         if (is_null($dir)) {
@@ -40,9 +39,8 @@ class ImageCache
         }
 
         $this->root = $dir;
-        $this->src_root = $dir;
-        $this->base = $filebase;
-        $this->opts = array_merge($defaults, $opts);
+        // $this->base = $filebase;
+        $this->opts = array_merge( $defaults, $opts );
 
         if (! $create_dir) {
             return $this;
@@ -61,21 +59,20 @@ class ImageCache
          * @return $this (obj) - Returns the class for continuance
          */
 
-        if (! is_dir($this->root . $this->opts['compressed_dir'])) {
+        if ( ! is_dir( $this->root . '/' . $this->opts['directory'] ) ) {
             try {
-                $pathinfo = pathinfo($this->root . $this->opts['compressed_dir']);
-                chmod($pathinfo['dirname'], 0777);
-                mkdir($this->root . $this->opts['compressed_dir'], 0777);
-                $this->root .= $this->opts['compressed_dir'];
-                $this->created_dir = true;
-                return $this;
+            	$cdir = $this->root . '/' . $this->opts['directory'];
+		        mkdir($cdir, 0777);
+		        $this->root = $cdir;
+		        $this->created_dir = true;
+		        return $this;
             } catch (\Exception $e) {
                 echo 'There was an error creating the new directory:' . "\n";
                 $this->debug($e);
             }
         }
-
-        $this->root .= $this->opts['compressed_dir'];
+        $this->src_root = $this->root;
+        $this->root .= '/' . $this->opts['directory'];
         $this->created_dir = true;
         return $this;
     }
@@ -90,66 +87,88 @@ class ImageCache
          * @return $out (array) - Information on the newly compressed image, including the new source with modtime query, the height, and the width
          */
 
-        $src = $this->src_root . '/' . $src;
-        $filename = $this->getFilename($src);
-        $dest = $filename . '-compressed.jpg';
+        if(strpos($src, 'htt') !== false) {
+	        if(!$this->isLocal($src)) {
+	        	$info = pathinfo($src);
+	        	$filename = $info['basename'];
+	        	$localfile = $this->src_root . '/' . $filename;
+	        	file_put_contents( $localfile, file_get_contents( $src ) );
+	        } else {
+	        	$localfile = $this->src_root . '/' . $filename;
+	        }
 
-        if ($out = $this->checkExists($dest)) {
-            return $out;
+	        if( ! file_exists( $localfile ) ) {
+	        	echo 'The image file could not be located';
+	        }
+        } else {
+	        if( ! file_exists( $src ) ) {
+	        	echo 'The image file could not be located';
+	        	exit;
+	        }
+	        $localfile = $src;
+        }
+        $fileinfo = pathinfo( $localfile );
+        $filename = $fileinfo['basename'];
+        if( file_exists( $this->root . '/' . $filename ) ) {
+	        $info = getimagesize( $this->root . '/' . $filename );
+	    	$src = $this->makesource( $this->root . '/' . $filename );
+        	$out = array(
+        		'src' => $src,
+        		'width' => $info[0],
+        		'height' => $info[1]
+    		);
+        	return $out;
         }
 
-        $info = getimagesize($src);
-        $this->allocateMemory('set');
-
-        switch ($info['mime']) {
-            case 'image/jpeg':
-                $image = imagecreatefromjpeg($src);
-                break;
-            case 'image/gif':
-                $image = imagecreatefromgif($src);
-                break;
-            case 'image/png':
-                $image = imagecreatefrompng($src);
-                break;
+        $info = getimagesize( $localfile );
+        try {
+	        $this->allocateMemory( 'set' );
+	        switch( $info['mime'] ) {
+	        	case 'image/jpeg' :
+	        		$image = imagecreatefromjpeg( $localfile );
+	        		break;
+	        	case 'image/gif' :
+	        		$image = imagecreatefromgif( $localfile );
+	        		break;
+	        	case 'image/png' :
+	        		$image = imagecreatefrompng( $localfile );
+	        		break;
+	        }
+	        $this->allocateMemory( 'reset' );
+        } catch(\Exception $e) {
+        	echo 'There was an error processing your image:' . "\n";
+        	$this->debug($e);
         }
-
-        $this->allocateMemory('reset');
-
-        if ($this->created_dir) {
-            $dest = $this->root . '/' . $dest;
+        if( $this->created_dir ) {
+        	$newlocation = $this->root . '/' . $filename;
+        } else {
+        	$newlocation = $this->src_root . '/' . $filename;
         }
-
-        //TODO: Better error handling for when image is null
-        if (is_null($image)) {
-            return false;
-        }
-
-        imagejpeg($image, $dest, $this->opts['quality']);
-        $this->setHeaders();
-        $info = getimagesize($dest);
-        $path = pathinfo($dest);
-        $src = '/' . end(explode('/', $path['dirname'])) . '/' . $path['basename'];
-        $src .= '?modtime=' . filemtime($this->root . '/' . $path['basename']);
+        imagejpeg( $image, $newlocation, $this->opts['quality'] );
+        $newinfo = getimagesize( $newlocation );
+        $modtime = filemtime( $newlocation );
+	    $src = $this->makesource( $this->root . '/' . $filename );
         $out = array(
-            'src' => $this->base . $src,
-            'width' => $info[0],
-            'height' => $info[1]
-        );
-        return $out;
+        	'src' => $src,
+        	'width' => $newinfo[0],
+        	'height' => $newinfo[1]
+    	);
+    	return $out;
     }
 
-    private function setHeaders($new = true)
+    private function isLocal($src)
     {
-        $one_month = 60 * 60 * 24 * 30; //One Month
-        $now = date(DATE_RFC2822);
-        $one_month_from_now = date(DATE_RFC2822, time() + $one_month);
-        header('Cache-Control: private, max-age=' . $one_month . ', pre-check=' . $one_month);
-        header('Pragma: private');
+    	$cururl = strtolower(reset(explode('/', $_SERVER['SERVER_PROTOCOL']))) . '://' . $_SERVER['SERVER_NAME'] . '/';
+    	if( strstr($cururl, $src) )
+    		return true;
+    	return false;
+    }
 
-        if ($new) {
-            header('Last-Modified: ' . $now . ', true, 304');
-            header('Expires: ' . $one_month_from_now);
-        }
+    private function makesource($dir) {
+    	$cururl = strtolower(reset(explode('/', $_SERVER['SERVER_PROTOCOL']))) . '://' . $_SERVER['SERVER_NAME'];
+    	$base = $_SERVER['DOCUMENT_ROOT'];
+    	$localpath = str_replace($base, '', $dir);
+    	return $cururl . $localpath;
     }
 
     private function allocateMemory($method)
@@ -222,7 +241,7 @@ class ImageCache
     {
         /**
          * 
-         * Basic debug functions
+         * Basic debug function
          * 
          */
 
