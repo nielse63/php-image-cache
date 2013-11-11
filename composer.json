@@ -1,6 +1,6 @@
 {
  "name": "nielse63/phpimagecache",
- "version" : "1.0.0",
+ "version" : "0.1.1",
  "type": "library",
  "description": "Image Cache is a very simple PHP class that accepts an image source and will compress and cache the file, move it to a new directory, and returns the new source for the image.",
  "keywords": ["cache","caching","php cache","image cache"],
