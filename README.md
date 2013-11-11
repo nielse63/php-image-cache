@@ -84,7 +84,7 @@ Future development changes include:
 	<li>More options, better documentation, more forms of output, etc.</li>
 </ul>
 
-## Contributing changes
+## Contributing
 
 Contributing to the project would be a massive help in maintaining and extending the script. It has a lot of potential, and any help would be awesome.
 
@@ -92,7 +92,7 @@ If you're interested in contributing, <a href="https://github.com/nielse63/image
 
 ## License
 
-Create Commons Attribution Lisence:
+Creative Commons Attribution Lisence:
 
 <a href="http://freedomdefined.org/Licenses/CC-BY">http://freedomdefined.org/Licenses/CC-BY</a>
 
