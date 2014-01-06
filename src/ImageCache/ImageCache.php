@@ -15,12 +15,12 @@ namespace ImageCache;
 
 class ImageCache
 {
-    private $root; /** @string  */
-    private $src_root; /** @string  */
-    private $created_dir; /** @bool  */
-    private $opts; /** @array  */
-    private $base; /** @string  */
-    private $pre_memory_limit; /** @string; gets the users memory limit */
+    private $root;              /** @string  */
+    private $src_root;          /** @string  */
+    private $created_dir;       /** @bool  */
+    private $opts;              /** @array  */
+    private $base;              /** @string  */
+    private $pre_memory_limit;  /** @string; gets the users memory limit */
 
     public function __construct( $dir = null, $create_dir = true, $opts = array() )
     {
@@ -78,7 +78,7 @@ class ImageCache
         return $this;
     }
 
-    public function compress($src)
+    public function compress( $src )
     {
         /**
          * 
@@ -88,9 +88,9 @@ class ImageCache
          * @return $out (array) - Information on the newly compressed image, including the new source with modtime query, the height, and the width
          */
 
-        if(strpos($src, 'htt') !== false) {
-	        if(!$this->isLocal($src)) {
-	        	$info = pathinfo($src);
+        if( strpos( $src, 'http' ) !== false ) {
+	        if( ! $this->isLocal( $src) ) {
+	        	$info = pathinfo( $src );
 	        	$filename = $info['basename'];
 	        	$localfile = $this->src_root . '/' . $filename;
 	        	file_put_contents( $localfile, file_get_contents( $src ) );
@@ -157,22 +157,22 @@ class ImageCache
     	return $out;
     }
 
-    private function isLocal($src)
+    private function isLocal( $src )
     {
-    	$cururl = strtolower(reset(explode('/', $_SERVER['SERVER_PROTOCOL']))) . '://' . $_SERVER['SERVER_NAME'] . '/';
-    	if( strstr($cururl, $src) )
+    	$cururl = strtolower( reset( explode( '/', $_SERVER['SERVER_PROTOCOL'] ) ) ) . '://' . $_SERVER['SERVER_NAME'] . '/';
+    	if( strstr( $cururl, $src ) )
     		return true;
     	return false;
     }
 
-    private function makesource($dir) {
-    	$cururl = strtolower(reset(explode('/', $_SERVER['SERVER_PROTOCOL']))) . '://' . $_SERVER['SERVER_NAME'];
+    private function makesource( $dir ) {
+    	$cururl = strtolower( reset( explode( '/', $_SERVER['SERVER_PROTOCOL'] ) ) ) . '://' . $_SERVER['SERVER_NAME'];
     	$base = $_SERVER['DOCUMENT_ROOT'];
-    	$localpath = str_replace($base, '', $dir);
+    	$localpath = str_replace( $base, '', $dir );
     	return $cururl . $localpath;
     }
 
-    private function allocateMemory($method)
+    private function allocateMemory( $method )
     {
         /**
          * 
@@ -182,20 +182,20 @@ class ImageCache
          * 
          */
 
-        if ($method === 'set') {
-            $amt = ini_get('memory_limit');
+        if ( $method === 'set' ) {
+            $amt = ini_get( 'memory_limit' );
             $this->pre_memory_limit = $amt;
 
-            if (intval($amt) < 128) {
-                ini_set('memory_limit', '128M');
+            if ( intval( $amt ) < 128 ) {
+                ini_set( 'memory_limit', '128M' );
             }
-        } else if ($method === 'reset') {
+        } else if ( $method === 'reset' ) {
             $orig_mem = $this->pre_memory_limit;
-            ini_set('memory_limit', $orig_mem . 'M');
+            ini_set( 'memory_limit', $orig_mem . 'M' );
         }
     }
 
-    private function checkExists($img)
+    private function checkExists( $img )
     {
         /**
          * 
@@ -206,24 +206,24 @@ class ImageCache
          * @return false (bool) - Returns false if the image doesn't exist
          */
 
-        if (file_exists($this->root . '/' . $img)) {
-            $info = getimagesize($this->root . '/' . $img);
-            $path = pathinfo($this->root . '/' . $img);
-            $exp = explode('/', $path['dirname']);
-            $src = '/' . end($exp) . '/' . $path['basename'];
-            $src .= '?modtime=' . filemtime($this->root . '/' . $path['basename']);
+        if ( file_exists( $this->root . '/' . $img ) ) {
+            $info = getimagesize( $this->root . '/' . $img );
+            $path = pathinfo( $this->root . '/' . $img );
+            $exp = explode( '/', $path['dirname'] );
+            $src = '/' . end( $exp ) . '/' . $path['basename'];
+            $src .= '?modtime=' . filemtime( $this->root . '/' . $path['basename'] );
             $out = array(
                 'src' => $this->base . $src,
                 'width' => $info[0],
                 'height' => $info[1]
             );
-            $this->setHeaders(false);
+            $this->setHeaders( false );
             return $out;
         }
         return false;
     }
 
-    public function getFilename($file)
+    public function getFilename( $file )
     {
         /**
          * 
@@ -233,7 +233,7 @@ class ImageCache
          * @return $filename (string) - The filename without the extension
          */
 
-        $pathinfo = pathinfo($file);
+        $pathinfo = pathinfo( $file );
         $filename = $pathinfo['filename'];
         return $filename;
     }
