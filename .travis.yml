@@ -6,3 +6,5 @@ php:
 
 notifications:
   email: "erik@312development.com"
+
+script: "cd unittests && phpunit UnitTests.php"
