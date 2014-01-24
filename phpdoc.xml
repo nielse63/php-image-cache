@@ -8,5 +8,6 @@
 	</transformer>
 	<files>
 		<ignore>demo</ignore>
+		<ignore>unittests</ignore>
 	</files>
 </phpdoc>
