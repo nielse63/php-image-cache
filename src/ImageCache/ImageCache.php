@@ -47,8 +47,8 @@ class ImageCache
             'directory' => 'compressed'
         );
 
-        if (is_null($dir)) {
-            $dir = dirname(dirname(__DIR__));
+        if ( is_null( $dir ) ) {
+            $dir = dirname( dirname( __DIR__ ) );
         }
 
         $this->root = $dir;
