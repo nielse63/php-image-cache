@@ -2,8 +2,6 @@
 
 Image Cache is a very simple PHP class that accepts an image source and will compress and cache the file, move it to a new directory, and returns the new source for the image.
 
-Support this project by donating on <a href="https://www.gittip.com/nielse63/" target="_blank">Gittip</a>.
-
 ## Current Status
 
 [![Build Status](https://travis-ci.org/nielse63/php-image-cache.png?branch=master)](https://travis-ci.org/nielse63/php-image-cache)
@@ -82,13 +80,7 @@ This will return an array of information on the compressed image, including the 
 
 ## What's Next
 
-Future development changes include:
-<ul>
-	<li>Integration with Tim Thumb and other image cropping libraries</li>
-	<li>Increase browser capabilities (and further testing down to IE 8)</li>
-	<li>Fixing the issue with 304 headers being ignored</li>
-	<li>More options, better documentation, more forms of output, etc.</li>
-</ul>
+<a href="https://github.com/nielse63/php-image-cache/blob/master/src/ImageCache/ImageCache.php">See the source</a> for a full to do list of changes that I wish to accomplish moving forward.
 
 ## Contributing
 
@@ -105,8 +97,6 @@ Creative Commons Attribution Lisence:
 ### .gitignore
 
 Allows for files to be ignored in builds.
-
-Support this project by donating on <a href="https://www.gittip.com/nielse63/" target="_blank">Gittip</a>.
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/nielse63/php-image-cache/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
