@@ -7,7 +7,8 @@
 		<target>docs</target>
 	</transformer>
 	<files>
-		<ignore>demo</ignore>
-		<ignore>unittests</ignore>
+		<directory>src</directory>
+		<ignore>./demo</ignore>
+		<ignore>./unittests</ignore>
 	</files>
 </phpdoc>
