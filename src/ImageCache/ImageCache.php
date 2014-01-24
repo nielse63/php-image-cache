@@ -1,13 +1,22 @@
 <?php
-
 /**
  * The primary class file for PHP Image Compressor & Caching
  *
  * This file is to be used in any PHP project that requires image compression
  *
  * @package PHP Image Compressor & Caching
- * @author Erik Nielsen (erik@312development.com) (http://312development.com)
- * @version 0.1.1
+ * @author Erik Nielsen <erik@312development.com | @erikkylenielsen>
+ * @license http://freedomdefined.org/Licenses/CC-BY MIT
+ * @version GIT: $Id$
+ * 
+ * @todo I have a laundry list of things I'd like to complete.  Among them:
+ *  - Ensure that 304 headers are being returned each time.
+ *  - Code cleanup and ensure PS2 standards are being met
+ *  - Improve documentation
+ *  - Write better unit tests for CI
+ *  - Continue to optimize for memory usage
+ *  - Create a method that returns new images sizes
+ *  - Create a method that resizes the image
  *
  */
 
@@ -22,14 +31,17 @@ class ImageCache
     private $base;              /** @string  */
     private $pre_memory_limit;  /** @string; gets the users memory limit */
 
+    /**
+     * The primary constructor function.  It sets up the environment and returns the class object
+     * 
+     * @param string|null $dir 
+     * @param bool $create_dir 
+     * @param array $opts 
+     * 
+     * @return self Returns the class object for contiuance
+     */
     public function __construct( $dir = null, $create_dir = true, $opts = array() )
     {
-        /**
-         * @param $dir (string/null) - The base directory that houses the image being compressed
-         * @param $create_dir (bool) - Whether or not to create a new directory for the compressed images
-         * @param $opts (array) - An array of available options that the user can include to the overwrite default settings; will be included later
-         */
-
         $defaults = array(
             'quality' => 90,
             'directory' => 'compressed'
@@ -40,26 +52,20 @@ class ImageCache
         }
 
         $this->root = $dir;
-        // $this->base = $filebase;
         $this->opts = array_merge( $defaults, $opts );
 
-        if (! $create_dir) {
+        if ( ! $create_dir )
             return $this;
-        }
-        
-        $this->createDirectory();
-        return $this;
+        return $this->createDirectory();
     }
 
+    /**
+     * Creates the directory in which the cached images will be stored
+     * 
+     * @return self Returns the class object for contiuance
+     */
     public function createDirectory()
     {
-        /**
-         * 
-         * Creates a new directory, if so requested to by the constructor function
-         * 
-         * @return $this (obj) - Returns the class for continuance
-         */
-
         if ( ! is_dir( $this->root . '/' . $this->opts['directory'] ) ) {
             try {
             	$cdir = $this->root . '/' . $this->opts['directory'];
@@ -78,16 +84,14 @@ class ImageCache
         return $this;
     }
 
+    /**
+     * Reads the image and in turn compresses, relocations, and returns a cached copy
+     * @param string $src 
+     * 
+     * @return array Information on the newly compressed image, including the new source with modtime query, the height, and the width
+     */ 
     public function compress( $src )
     {
-        /**
-         * 
-         * The primary function - reads the image, the compresses, moves, and returns a cached copy
-         * 
-         * @param $src (string) - The image that is to be compressed
-         * @return $out (array) - Information on the newly compressed image, including the new source with modtime query, the height, and the width
-         */
-
         if( strpos( $src, 'http' ) !== false ) {
 	        if( ! $this->isLocal( $src) ) {
 	        	$info = pathinfo( $src );
@@ -112,7 +116,7 @@ class ImageCache
         $filename = $fileinfo['basename'];
         if( file_exists( $this->root . '/' . $filename ) ) {
 	        $info = getimagesize( $this->root . '/' . $filename );
-	    	$src = $this->makesource( $this->root . '/' . $filename );
+	    	$src = $this->makeSource( $this->root . '/' . $filename );
         	$out = array(
         		'src' => $src,
         		'width' => $info[0],
@@ -148,7 +152,7 @@ class ImageCache
         imagejpeg( $image, $newlocation, $this->opts['quality'] );
         $newinfo = getimagesize( $newlocation );
         $modtime = filemtime( $newlocation );
-	    $src = $this->makesource( $this->root . '/' . $filename );
+	    $src = $this->makeSource( $this->root . '/' . $filename );
         $out = array(
         	'src' => $src,
         	'width' => $newinfo[0],
@@ -157,6 +161,24 @@ class ImageCache
     	return $out;
     }
 
+    /**
+     * Returns the filename basename without the extension, path, or URL
+     * @param string $file The name of the file
+     * 
+     * @return string The name of the file sans extension
+     */
+    public function getFilename( $file )
+    {
+        $pathinfo = pathinfo( $file );
+        $filename = $pathinfo['filename'];
+        return $filename;
+    }
+
+    /**
+     * Checks if the image is on the server currently being utilized
+     * @param string $src 
+     * @return bool Whether or not the image is local
+     */
     private function isLocal( $src )
     {
     	$cururl = strtolower( reset( explode( '/', $_SERVER['SERVER_PROTOCOL'] ) ) ) . '://' . $_SERVER['SERVER_NAME'] . '/';
@@ -165,23 +187,36 @@ class ImageCache
     	return false;
     }
 
-    private function makesource( $dir ) {
-    	$cururl = strtolower( reset( explode( '/', $_SERVER['SERVER_PROTOCOL'] ) ) ) . '://' . $_SERVER['SERVER_NAME'];
-    	$base = $_SERVER['DOCUMENT_ROOT'];
-    	$localpath = str_replace( $base, '', $dir );
-    	return $cururl . $localpath;
+    /**
+     * Creates an absolute URL based on the current protocol and location of the image on the server
+     * @param string $dir 
+     * 
+     * @return string The 
+     */
+    private function makeSource( $dir )
+    {
+        $protocol = $_SERVER[ 'SERVER_PROTOCOL' ];
+        $protocol_array = explode( ':', $protocol );
+        $host = $_SERVER[ 'SERVER_NAME' ];
+
+        $current_url_tmp = reset( $protocol_array ) . '://' . $host;
+        $current_url = strtolower( $current_url_tmp );
+
+        $base = $_SERVER['DOCUMENT_ROOT'];
+        if( $base == '/' ) {
+            $localpath = substr( $dir, 1 );
+        } else {
+            $localpath = str_replace( $base, '', $dir );
+        }
+        return $cururl . $localpath;
     }
 
+    /**
+     * Allocates memory usage to ensure that larger images can be handled without timing out
+     * @param string $method The method being used to either "set" the new memory limit, or "reset" it back to the previous value
+     */
     private function allocateMemory( $method )
     {
-        /**
-         * 
-         * Allocates additional memory to the program if needed
-         * 
-         * @param $method (string) - Either 'set' or 'reset' - if anything else, will return false
-         * 
-         */
-
         if ( $method === 'set' ) {
             $amt = ini_get( 'memory_limit' );
             $this->pre_memory_limit = $amt;
@@ -195,17 +230,14 @@ class ImageCache
         }
     }
 
+    /**
+     * Determines if a cached version of the input image already exists
+     * @param string $img The basename of the image we're checking against
+     * 
+     * @return bool
+     */
     private function checkExists( $img )
     {
-        /**
-         * 
-         * Checks if the compressed version of the image already exists
-         * 
-         * @param $img (string) - The basename of the image we're checking for
-         * @return $out (array) - Information on the newly compressed image, including the new source with modtime query, the height, and the width
-         * @return false (bool) - Returns false if the image doesn't exist
-         */
-
         if ( file_exists( $this->root . '/' . $img ) ) {
             $info = getimagesize( $this->root . '/' . $img );
             $path = pathinfo( $this->root . '/' . $img );
@@ -223,29 +255,12 @@ class ImageCache
         return false;
     }
 
-    public function getFilename( $file )
+    /**
+     * A basis debug function for printing output - good if not using unit testing
+     * @param mixed $a The input variable
+     */
+    private function debug( $a )
     {
-        /**
-         * 
-         * Just grabs the filename without the file extension
-         * 
-         * @param $file (string) - The filename whose name we want
-         * @return $filename (string) - The filename without the extension
-         */
-
-        $pathinfo = pathinfo( $file );
-        $filename = $pathinfo['filename'];
-        return $filename;
-    }
-
-    private function debug($a)
-    {
-        /**
-         * 
-         * Basic debug function
-         * 
-         */
-
         echo '<pre>';
         print_r($a);
         echo '</pre><hr>';
