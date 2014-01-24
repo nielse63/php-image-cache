@@ -1,4 +1,4 @@
-# Image Cache v. 0.1.1
+# Image Cache v. 0.1.2-12-gedcc5f9
 
 Image Cache is a very simple PHP class that accepts an image source and will compress and cache the file, move it to a new directory, and returns the new source for the image.
 
