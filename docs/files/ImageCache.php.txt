@@ -24,12 +24,38 @@ namespace ImageCache;
 
 class ImageCache
 {
-    private $root;              /** @string  */
-    private $src_root;          /** @string  */
-    private $created_dir;       /** @bool  */
-    private $opts;              /** @array  */
-    private $base;              /** @string  */
-    private $pre_memory_limit;  /** @string; gets the users memory limit */
+
+    /**
+     * @var string The current directory the class is being employed
+     */
+    private $root;
+
+    /**
+     * @var string The root of the source image
+     */
+    private $src_root;
+    
+    /**
+     * @var bool If the directory containing the compressed images has already been created
+     */
+    private $created_dir;
+    
+    /**
+     * @var array Options set by the user for the class
+     */
+    private $opts;
+    
+    /**
+     * @var string The current directory the class is being employed
+     * 
+     * @todo Remove this variable or find a way that it can be removed
+     */
+    private $base;
+    
+    /**
+     * @var string|int The original memory limit set by the server
+     */
+    private $pre_memory_limit;
 
     /**
      * The primary constructor function.  It sets up the environment and returns the class object
@@ -86,6 +112,7 @@ class ImageCache
 
     /**
      * Reads the image and in turn compresses, relocations, and returns a cached copy
+     * 
      * @param string $src 
      * 
      * @return array Information on the newly compressed image, including the new source with modtime query, the height, and the width
@@ -163,6 +190,7 @@ class ImageCache
 
     /**
      * Returns the filename basename without the extension, path, or URL
+     * 
      * @param string $file The name of the file
      * 
      * @return string The name of the file sans extension
@@ -176,7 +204,9 @@ class ImageCache
 
     /**
      * Checks if the image is on the server currently being utilized
+     * 
      * @param string $src 
+     * 
      * @return bool Whether or not the image is local
      */
     private function isLocal( $src )
@@ -189,6 +219,7 @@ class ImageCache
 
     /**
      * Creates an absolute URL based on the current protocol and location of the image on the server
+     * 
      * @param string $dir 
      * 
      * @return string The 
@@ -213,6 +244,7 @@ class ImageCache
 
     /**
      * Allocates memory usage to ensure that larger images can be handled without timing out
+     * 
      * @param string $method The method being used to either "set" the new memory limit, or "reset" it back to the previous value
      */
     private function allocateMemory( $method )
@@ -232,6 +264,7 @@ class ImageCache
 
     /**
      * Determines if a cached version of the input image already exists
+     * 
      * @param string $img The basename of the image we're checking against
      * 
      * @return bool
@@ -257,6 +290,7 @@ class ImageCache
 
     /**
      * A basis debug function for printing output - good if not using unit testing
+     * 
      * @param mixed $a The input variable
      */
     private function debug( $a )
