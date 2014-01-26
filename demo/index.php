@@ -16,7 +16,6 @@ require '../src/ImageCache/ImageCache.php';
 		$image = new ImageCache\ImageCache( dirname(__FILE__) . '/images' );
 
 		// Compress the image with either the full URL source, or its location on the server
-
 		$d = $image->compress( 'http://placehold.it/500x300.gif');
 	?>
 		<img src="<?php echo $d['src']; ?>" height="<?php echo $d['height']; ?>" width="<?php echo $d['width']; ?>">
