@@ -1,0 +1,7 @@
+#!/bin/sh
+
+PHP_UNIT=`which phpunit`
+PHP_DOC=`which phpdoc`
+
+cd unittests && $PHP_UNIT ImageCacheTest ;
+cd ../ $PHP_DOC

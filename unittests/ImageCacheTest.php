@@ -20,11 +20,12 @@ class ImageCacheTest extends PHPUnit_Framework_TestCase
      */
 	public function testClassDoesHaveAttributes()
     {
-        $this->assertClassHasAttribute( 'root', 'ImageCache\ImageCache' );
-        $this->assertClassHasAttribute( 'src_root', 'ImageCache\ImageCache' );
+        $this->assertClassHasAttribute( 'cached_directory', 'ImageCache\ImageCache' );
+        $this->assertClassHasAttribute( 'original_root', 'ImageCache\ImageCache' );
         $this->assertClassHasAttribute( 'created_dir', 'ImageCache\ImageCache' );
-        $this->assertClassHasAttribute( 'opts', 'ImageCache\ImageCache' );
-        $this->assertClassHasAttribute( 'base', 'ImageCache\ImageCache' );
-        $this->assertClassHasAttribute( 'pre_memory_limit', 'ImageCache\ImageCache' );
+        $this->assertClassHasAttribute( 'options', 'ImageCache\ImageCache' );
+        $this->assertClassHasAttribute( 'compressed', 'ImageCache\ImageCache' );
+        $this->assertClassHasAttribute( 'original_image_source', 'ImageCache\ImageCache' );
+        $this->assertClassHasAttribute( 'src', 'ImageCache\ImageCache' );
     }
 }

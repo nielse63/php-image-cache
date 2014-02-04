@@ -126,274 +126,228 @@ class ImageCache
 		return $this;
 	}
 
-    /**
-     * Reads the image and in turn compresses, relocations, and returns a cached copy
-     * 
-     * @param string $src Either a local image, with the relative or absolute directory path set during instatiation, or a URL
-     * 
-     * @return array Information on the newly compressed image, including the new source with modtime query, the height, and the width
-     */ 
-    public function compress( $source )
-    {
+	/**
+	 * Reads the image and in turn compresses, relocations, and returns a cached copy
+	 * 
+	 * @param string $src Either a local image, with the relative or absolute directory path set during instatiation, or a URL
+	 * 
+	 * @return array Information on the newly compressed image, including the new source with modtime query, the height, and the width
+	 */ 
+	public function compress( $source )
+	{
 		// Set variables for this method
 		$this->original_image_source = $source;
 		$filename = basename( $source );
 		$localfile = $this->cached_directory . '/' . $filename;
 
 		// Check if the image is already downloaded and cached
-		// if( $this->isInDirectory( $localfile ) )
-		// 	return $this->src = $this->makeSource( $localfile );
+		if( $this->isInDirectory( $localfile ) )
+			return $this->outputSource( $this->makeSource( $localfile ), $this->getModTime( $localfile ) );
 
 		// If the image is derived from a filepath, return the URL
 		if( $this->isInDirectory( $source ) )
 			$source = $this->makeSource( $source );
 
-    	if( $this->isURL( $source ) && ! $this->is404( $source ) ) {
-    		$file_resource = file_get_contents( $source );
-    		try {
-    			file_put_contents( $localfile, $file_resource );
-    		} catch( \Exception $e ) {
-    			return $this->throwError( 'There was an error downloading the image:', $e );
-    		}
-    	} else {
-    		return $this->show404();
-    	}
-    	if( $this->isInDirectory( $localfile ) ) {
-	    	$this->src = $this->makeSource( $localfile );
-	    	$this->getMimeType( $localfile );
-	    	debug( $info );
-    	} else {
-    		return $this->throwError( 'There was an error downloading the image.  Try again.' );
-    	}
-    	/*
-        $fileinfo = pathinfo( $localfile );
-        $filename = $fileinfo['basename'];
-        if( file_exists( $this->root . '/' . $filename ) ) {
-	        $info = getimagesize( $this->root . '/' . $filename );
-	    	$src = $this->makeSource( $this->root . '/' . $filename );
-        	$out = array(
-        		'src' => $src,
-        		'width' => $info[0],
-        		'height' => $info[1]
-    		);
-        	return $out;
-        }
+		if( $this->isURL( $source ) && ! $this->is404( $source ) ) {
+			$file_resource = file_get_contents( $source );
+			try {
+				file_put_contents( $localfile, $file_resource );
+			} catch( \Exception $e ) {
+				return $this->throwError( 'There was an error downloading the image:', $e );
+			}
+		} else {
+			return $this->show404();
+		}
+		if( ! $this->isInDirectory( $localfile ) )
+			return $this->throwError( 'There was an error downloading the image.  Try again.' );
 
-        $info = getimagesize( $localfile );
-        try {
-	        $this->allocateMemory( 'set' );
-	        switch( $info['mime'] ) {
-	        	case 'image/jpeg' :
-	        		$image = imagecreatefromjpeg( $localfile );
-	        		break;
-	        	case 'image/gif' :
-	        		$image = imagecreatefromgif( $localfile );
-	        		break;
-	        	case 'image/png' :
-	        		$image = imagecreatefrompng( $localfile );
-	        		break;
-	        }
-	        $this->allocateMemory( 'reset' );
-        } catch(\Exception $e) {
-        	echo 'There was an error processing your image:' . "\n";
-        	$this->debug($e);
-        }
-        if( $this->created_dir ) {
-        	$newlocation = $this->root . '/' . $filename;
-        } else {
-        	$newlocation = $this->src_root . '/' . $filename;
-        }
-        imagejpeg( $image, $newlocation, $this->opts['quality'] );
-        $newinfo = getimagesize( $newlocation );
-        $modtime = filemtime( $newlocation );
-	    $src = $this->makeSource( $this->root . '/' . $filename );
-        // $this->compressed = $src;
+		$this->src = $this->makeSource( $localfile );
+		$mime = $this->getMimeType( $localfile );
+		try {
+			$this->increaseMemoryLimit();
+			switch( $mime ) {
+				case 'image/jpeg' :
+					$imageResource = imagecreatefromjpeg( $localfile );
+				break;
+				case 'image/png' :
+					$imageResource = imagecreatefrompng( $localfile );
+				break;
+				case 'image/gif' :
+					$imageResource = imagecreatefromgif( $localfile );
+				break;
+			}
+			$this->resetMemoryLimit();
+		} catch( \Exception $e ) {
+			$this->throwError( 'There was an error processing your image.', $e );
+		}
+		imagejpeg( $imageResource, $localfile, $this->options['quality'] );
+		return $this->outputSource( $this->makeSource( $localfile ), $this->getModTime( $localfile ) );
+	}
 
-        $this->src = $src;
+	private function outputSource( $source, $modtime )
+	{
+		$outputSource = $source . '?' . $modtime;
+		$this->src = $outputSource;
+		$this->setHeaders();
+		return $outputSource;
+	}
 
-        // For backwards compatibility, but will soon be deprecated
-        $out = array(
-        	'src' => $src,
-        	'width' => $newinfo[0],
-        	'height' => $newinfo[1]
-    	);
-    	return $out;
-    	*/
-    }
+	private function setHeaders()
+	{
+		$expiryDate = date( 'D, d M Y H:i:s e', strtotime() + ( 3600 * 24 * 30 ) );
+		header( 'Cache-Control: cache, must-revalidate' );
+		header( 'Expires: ' . $expiryDate );
+		header( 'HTTP/1.0 304 Not Modified' );
+		$GLOBALS['http_response_code'] = 304;
+	}
 
-    /**
-     * Returns the filename basename without the extension, path, or URL
-     * 
-     * @param string $file The name of the file
-     * 
-     * @return string The name of the file sans extension
-     */
-    private function getFilename( $file )
-    {
-        $pathinfo = pathinfo( $file );
-        $filename = $pathinfo['filename'];
-        return $filename;
-    }
+	private function getModtime( $file )
+	{
+		if( ! $this->isInDirectory( $file ) )
+			return null;
+		return filemtime( $file );
+	}
 
-    /**
-     * Description
-     * @param type $source 
-     * @return type
-     * 
-     * @todo Complete documentation
-     */
-    private function isURL( $source )
-    {
-    	if( filter_var( $source, FILTER_VALIDATE_URL ) )
-    		return true;
-    	return false;
-    }
+	/**
+	 * Returns the filename basename without the extension, path, or URL
+	 * 
+	 * @param string $file The name of the file
+	 * 
+	 * @return string The name of the file sans extension
+	 */
+	private function getFilename( $file )
+	{
+		$pathinfo = pathinfo( $file );
+		$filename = $pathinfo['filename'];
+		return $filename;
+	}
 
-    private function isInDirectory( $source )
-    {
-    	if( is_file( $source ) && file_exists( $source ) )
-    		return true;
-    	return false;
-    }
+	private function isURL( $source )
+	{
+		if( filter_var( $source, FILTER_VALIDATE_URL ) )
+			return true;
+		return false;
+	}
 
-    private function is404( $source )
-    {
-    	$ch = curl_init();
+	private function isInDirectory( $source )
+	{
+		if( is_file( $source ) && file_exists( $source ) )
+			return true;
+		return false;
+	}
+
+	private function is404( $source )
+	{
+		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_URL, $main_url );
 		curl_setopt( $ch, CURLOPT_NOBODY, true );
 		curl_exec( $ch );
 		if( curl_getinfo( $ch, CURLINFO_HTTP_CODE ) == '404' )
 			return $this->show404();
 		return false;
-    }
+	}
 
-    private function show404()
-    {
-    	return $this->src = 'http://placehold.it/500x300&text=Image Not Found';
-    }
+	private function show404()
+	{
+		return $this->src = 'http://placehold.it/500x300&text=Image Not Found';
+	}
 
-    /**
-     * Checks if the image is on the server currently being utilized
-     * 
-     * @param string $src 
-     * 
-     * @return bool Whether or not the image is local
-     */
-    private function isLocal( $src )
-    {
-    	$cururl = strtolower( reset( explode( '/', $_SERVER['SERVER_PROTOCOL'] ) ) ) . '://' . $_SERVER['SERVER_NAME'] . '/';
-    	if( strstr( $cururl, $src ) )
-    		return true;
-    	return false;
-    }
+	/**
+	 * Checks if the image is on the server currently being utilized
+	 * 
+	 * @param string $src 
+	 * 
+	 * @return bool Whether or not the image is local
+	 */
+	private function isLocal( $src )
+	{
+		$cururl = strtolower( reset( explode( '/', $_SERVER['SERVER_PROTOCOL'] ) ) ) . '://' . $_SERVER['SERVER_NAME'] . '/';
+		if( strstr( $cururl, $src ) )
+			return true;
+		return false;
+	}
 
-    /**
-     * Creates an absolute URL based on the current protocol and location of the image on the server
-     * 
-     * @param string $dir 
-     * 
-     * @return string The 
-     */
-    private function makeSource( $dir )
-    {
-        $protocol = $_SERVER[ 'SERVER_PROTOCOL' ];
-        $protocol_array = explode( '/', $protocol );
-        $host = $_SERVER[ 'SERVER_NAME' ];
+	/**
+	 * Creates an absolute URL based on the current protocol and location of the image on the server
+	 * 
+	 * @param string $dir 
+	 * 
+	 * @return string The 
+	 */
+	private function makeSource( $dir )
+	{
+		$protocol = $_SERVER[ 'SERVER_PROTOCOL' ];
+		$protocol_array = explode( '/', $protocol );
+		$host = $_SERVER[ 'SERVER_NAME' ];
 
-        $current_url_tmp = reset( $protocol_array ) . '://' . $host;
-        $current_url = strtolower( $current_url_tmp );
+		$current_url_tmp = reset( $protocol_array ) . '://' . $host;
+		$current_url = strtolower( $current_url_tmp );
 
-        $base = $_SERVER['DOCUMENT_ROOT'];
-        if( $base == '/' ) {
-            $localpath = substr( $dir, 1 );
-        } else {
-            $localpath = str_replace( $base, '', $dir );
-        }
-        return $current_url . $localpath;
-    }
+		$base = $_SERVER['DOCUMENT_ROOT'];
+		if( $base == '/' ) {
+			$localpath = substr( $dir, 1 );
+		} else {
+			$localpath = str_replace( $base, '', $dir );
+		}
+		return $current_url . $localpath;
+	}
 
-    private function increaseMemoryLimit()
-    {
-    	if( isset( $this->pre_memory_limit ) )
-    		return;
-    	$memory_limit = ini_get( 'memory_limit' );
-    	$int_memory_limit = intval( $memory_limit );
-    	if( $int_memory_limit >= 128 )
-    		return;
-    	$this->pre_memory_limit = $int_memory_limit;
-    	ini_set( 'memory_limit', '128M' );
-    }
+	private function increaseMemoryLimit()
+	{
+		if( isset( $this->pre_memory_limit ) )
+			return;
+		$memory_limit = ini_get( 'memory_limit' );
+		$int_memory_limit = intval( $memory_limit );
+		if( $int_memory_limit >= 128 )
+			return;
+		$this->pre_memory_limit = $int_memory_limit;
+		ini_set( 'memory_limit', '128M' );
+	}
 
-    private function resetMemoryLimit()
-    {
-    	if( ! isset( $this->pre_memory_limit ) )
-    		return;
-    	ini_set( 'memory_limit', $this->pre_memory_limit . 'M' );
-    }
+	private function resetMemoryLimit()
+	{
+		if( ! isset( $this->pre_memory_limit ) )
+			return;
+		ini_set( 'memory_limit', $this->pre_memory_limit . 'M' );
+	}
 
-    /**
-     * Determines if a cached version of the input image already exists
-     * 
-     * @param string $img The basename of the image we're checking against
-     * 
-     * @return bool
-     */
-    private function checkExists( $img )
-    {
-        if ( file_exists( $this->root . '/' . $img ) ) {
-            $info = getimagesize( $this->root . '/' . $img );
-            $path = pathinfo( $this->root . '/' . $img );
-            $exp = explode( '/', $path['dirname'] );
-            $src = '/' . end( $exp ) . '/' . $path['basename'];
-            $src .= '?modtime=' . filemtime( $this->root . '/' . $path['basename'] );
-            $out = array(
-                'src' => $this->base . $src,
-                'width' => $info[0],
-                'height' => $info[1]
-            );
-            $this->setHeaders( false );
-            return $out;
-        }
-        return false;
-    }
+	private function getMimeType( $image )
+	{
+		$info = getimagesize( $image );
+		return $info['mime'];
+	}
 
-    private function getMimeType( $image )
-    {
-    	$info = getimagesize( $image );
-    	return $info['mime'];
-    }
+	/**
+	* A basic debug function for printing output - good if not using unit testing
+	* 
+	* @param mixed $a The input variable
+	*/
+	private function debug( $a )
+	{
+		echo '<pre>';
+		print_r($a);
+		echo '</pre><hr>';
+	}
 
-    /**
-    * A basic debug function for printing output - good if not using unit testing
-    * 
-    * @param mixed $a The input variable
-    */
-    private function debug( $a )
-    {
-        echo '<pre>';
-        print_r($a);
-        echo '</pre><hr>';
-    }
+	/**
+	 * Memory management function that releases an object's value
+	 * 
+	 * @param mixed $a Any input that is to be released
+	 */
+	private function release( $a )
+	{
+		if( ! $a || is_null( $a ) )
+			return;
+		foreach( $a as $b ) {
+			unset( $b );
+		}
+		unset( $a );
+	}
 
-    /**
-     * Memory management function that releases an object's value
-     * 
-     * @param mixed $a Any input that is to be released
-     */
-    private function release( $a )
-    {
-        if( ! $a || is_null( $a ) )
-            return;
-        foreach( $a as $b ) {
-            unset( $b );
-        }
-        unset( $a );
-    }
-
-    private function throwError( $message = null, $error = null ) {
-    	if( is_null( $message ) )
-    		$message = 'Unknown Error:';
+	private function throwError( $message = null, $error = null ) {
+		if( is_null( $message ) )
+			$message = 'Unknown Error:';
 		echo $message . "\n";
 		return $this->debug( $error );
-    }
+	}
 }
