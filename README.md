@@ -6,21 +6,19 @@ Image Cache is a very simple PHP class that accepts an image source and will com
 
 [![Build Status](https://travis-ci.org/nielse63/php-image-cache.png?branch=master)](https://travis-ci.org/nielse63/php-image-cache)
 
-This is used on <a href="http://travis-ci.org" taret="_blank">travis-ci.org</a> for continuous integration testing.
+Employing <a href="http://travis-ci.org" taret="_blank">travis-ci.org</a> for continuous integration testing and assurance of code validity.
 
 ## Installation
 
-You can either install the script manually using the `require` method:
+Install <a href="http://getcomposer.org" target="_blank">Composer</a> by opening Terminal and navigating to the directory in which you'd like to install Image Cache.
 
-```php
-require 'ImageCache.php';
+Download Composer:
+
+```bash
+curl -sS https://getcomposer.org/installer | php
 ```
 
-Or (preferred) you can install the script with <a href="http://getcomposer.org" target="_blank">Composer</a>.
-
-Install Composer in the root directory of your project, and create a `composer.json` file.
-
-In your `composer.json` file:
+Create a `composer.json` file:
 
 ```json
 	{
@@ -30,9 +28,7 @@ In your `composer.json` file:
 	}
 ```
 
-This is currently the first release of Image Cache, so in this example you'll be able to update your script with any updates made to Image Cache. If, however, you don't want access to any potential updates, remove the tilda form the "version" value.
-
-Navigate to your project root and run the `install` command of `composer.phar`.
+Navigate to your project root and run the `install` command.
 
 ```bash
 $ php composer.phar install
@@ -40,43 +36,27 @@ $ php composer.phar install
 
 From there, include the `vendor/autoload.php` file in your project, and initialize the class as normal.
 
+More information on installing and using Composer can be found at <a href="http://getcomposer.org" target="_blank">getcomposer.org</a>, and dependency information on the package can be found at <a href="https://packagist.org/packages/nielse63/phpimagecache" target="_blank">packagist.org</a>.
+
 ## Testing
 
-To test the script, install the full project on your server and navigate to the test directory. This ccontains an index file with example functions and an image directory with several images.  Run the `test/index.php` file to ensure that the script is compressing and compiling the sample images.  If working correctly, a new directory, "compressed" will appear in your images folder.
+### Manual Testing
 
-## Deploying
+To test the script manually by receiving visual output, setup a virtual host and load `demo/index.php` in your browser.  Three examples are set in that file: the original image called from an outside source; a cached example referencing the outside source via an absolute URL; and an internal source referencing a file path.
 
-Include the script in your project either with Composer or via the manual `require` method and create a new instance of the class, using the appropriate parameters if needed:
+Using Chrome Developer Tools you can see the difference in load times between the external source (non-cached image) and the internally stored and cached image.
 
-```php
-$image = new ImageCache\ImageCache();
+### Unit Testing
+
+Some extremely basic unit tests are included with the script and can be run using <a href="http://phpunit.de/" target="_blank">PHP Unit</a>.  I'm working on continuing to build up these tests and would more than welcome any contributions to the tests.
+
+To execute the tests in a bundled script (along with rebuilding the docs), clone the repository, navigate to the root of the repo in terminal, and execute:
+
+```bash
+$: sh build
 ```
 
-Possible parameters include:
-
-```php
-$image = new ImageCache\ImageCache(
-	$filebase = '', $dir = null, $create_dir = true, $opts = array()
-);
-/**
- * @param $filebase (string) - The base URL that will be included in the final output for the image source; used if image source is an absolute URL
- * @param $dir (string/null) - The base directory that houses the image being compressed
- * @param $create_dir (bool) - Whether or not to create a new directory for the compressed images
- * @param $opts (array) - An array of available options that the user can include to the overwrite default settings
- */
-```
-
-Then compress the image by calling it by it's filename:
-
-```php
-$compressed = $image->compress('image.png');
-```
-
-This will return an array of information on the compressed image, including the source of the compressed image, the height, and the width.  It can be included in your PHP file as such:
-
-```html
-<img src="<?php echo $compressed['src']; ?>" height="<?php echo $compressed['height']; ?>" width="<?php echo $compressed['width']; ?>">
-```
+Assuming you have the `phpunit` and `phpdoc` commands intalled, the tests will pass and docs will be rebuilt.
 
 ## What's Next
 
@@ -84,19 +64,17 @@ This will return an array of information on the compressed image, including the 
 
 ## Contributing
 
-Contributing to the project would be a massive help in maintaining and extending the script. It has a lot of potential, and any help would be awesome.
+Contributing to the project would be a massive help in maintaining and extending the script. The module is being used on a larger scale than I initially imagined, and continuing to maintain it is becoming a little time consuming for just me.
 
-If you're interested in contributing, <a href="https://github.com/nielse63/image-cache/pulls" taret="_blank">issue a pull request</a> on Github or email me directly at <a href="mailto:erik@312development.com">erik@312development.com</a>.
+If you're interested in contributing, <a href="https://github.com/nielse63/php-image-cache/pulls" taret="_blank">issue a pull request</a> on Github or email me directly at <a href="mailto:erik@312development.com">erik@312development.com</a>.
+
+For any issues found or extensions you'd like to see, feel free to <a href="https://github.com/nielse63/php-image-cache/issues" taret="_blank">submit an issue ticket</a> so we can start a discussion about the viability of the problem and how it can be resolved.
 
 ## License
 
 Creative Commons Attribution Lisence:
 
 <a href="http://freedomdefined.org/Licenses/CC-BY">http://freedomdefined.org/Licenses/CC-BY</a>
-
-### .gitignore
-
-Allows for files to be ignored in builds.
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/nielse63/php-image-cache/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
