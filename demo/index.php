@@ -25,12 +25,10 @@ function debug( $a )
 		// Compress the image with either the full URL source, or its location on the server
 		$image->compress( 'http://placehold.it/500x300.gif' );
 		$image->compress( dirname( __FILE__ ) . '/images/500x300.gif' );
-		debug( $image );
-		/*
-			<img src="<?php echo $image->src; ?>" height="<?php echo $d['height']; ?>" width="<?php echo $d['width']; ?>">
-			<img src="<?php echo $image->src; ?>">
-		*/
 	?>
+		<img src="http://placehold.it/500x300.gif">
+		<img src="<?php echo $image->src; ?>">
+		<img src="<?php echo $image->src; ?>">
 	
 </body>
 </html>
