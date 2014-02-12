@@ -239,7 +239,7 @@ class ImageCache
 	private function is404( $source )
 	{
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $main_url );
+		curl_setopt( $ch, CURLOPT_URL, $source );
 		curl_setopt( $ch, CURLOPT_NOBODY, true );
 		curl_exec( $ch );
 		if( curl_getinfo( $ch, CURLINFO_HTTP_CODE ) == '404' )
