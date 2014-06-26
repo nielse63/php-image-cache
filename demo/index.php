@@ -20,7 +20,7 @@ function debug( $a )
 <body>
 	<?php 
 		// I've defined the base URL to be included in the source, as well as the images directory
-		$image = new ImageCache\ImageCache( dirname( __FILE__ ) . '/images', true, array( 'directory_name' => 'cached' ) );
+		$image = new ImageCache\ImageCache();
 
 		// Compress the image with either the full URL source, or its location on the server
 		$sample_one = $image->compress( 'http://placehold.it/500x300.gif' );

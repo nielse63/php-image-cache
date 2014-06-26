@@ -167,6 +167,7 @@ class ImageCache
 			$this->increaseMemoryLimit();
 			switch( $mime ) {
 				case 'image/jpeg' :
+				case 'image/jpg' :
 					$imageResource = imagecreatefromjpeg( $localfile );
 				break;
 				case 'image/png' :
