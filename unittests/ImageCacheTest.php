@@ -1,6 +1,7 @@
 <?php
 
-require './ImageCache.php';
+chdir( dirname( __FILE__ ) );
+require_once './ImageCache.php';
 
 class ImageCacheTest extends PHPUnit_Framework_TestCase
 {

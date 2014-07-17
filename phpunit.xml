@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+         backupStaticAttributes="false"
+
+         cacheTokens="false"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         forceCoversAnnotation="false"
+         mapTestClassNameToCoveredClassName="false"
+
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+		 
+         strict="false"
+         verbose="false"
+		 
+		 >
+	<testsuites>
+		<testsuite name="./unittests/ImageCacheTest">
+			<directory>.</directory>
+		</testsuite>
+	</testsuites>
+	
+	<filter>
+	  <blacklist>
+		<directory suffix=".php">./demo</directory>
+		<file></file>
+		<exclude>
+		  <directory suffix=".php"></directory>
+		  <file></file>
+		</exclude>
+	  </blacklist>
+	  <whitelist processUncoveredFilesFromWhitelist="true">
+		<directory suffix=".php"></directory>
+		<file></file>
+		<exclude>
+		  <directory suffix=".php"></directory>
+		  <file></file>
+		</exclude>
+	  </whitelist>
+	</filter>
+</phpunit>
