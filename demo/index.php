@@ -1,16 +1,4 @@
-<?php
-
-date_default_timezone_set('UTC');
-require '../src/ImageCache/ImageCache.php';
-
-function debug( $a )
-{
-	echo '<pre>';
-	print_r( $a );
-	echo '</pre><hr>';
-}
-
-?>
+<?php require '../src/ImageCache/ImageCache.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,12 +11,12 @@ function debug( $a )
 		$image = new ImageCache\ImageCache();
 
 		// Compress the image with either the full URL source, or its location on the server
-		$sample_one = $image->compress( 'http://placehold.it/500x300.gif' );
-		$sample_two = $image->compress( dirname( __FILE__ ) . '/images/500x300.gif' );
+		// $sample_one = $image->compress( 'http://placehold.it/500x300.gif' );
+		// $sample_two = $image->compress( dirname( __FILE__ ) . '/images/500x300.gif' );
+		// <img src="http://placehold.it/500x300.gif">
+		// <img src="<?php echo $sample_one; ">
+		// <img src="<?php echo $sample_two; ">
 	?>
-		<img src="http://placehold.it/500x300.gif">
-		<img src="<?php echo $sample_one; ?>">
-		<img src="<?php echo $sample_two; ?>">
 	
 </body>
 </html>

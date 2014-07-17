@@ -24,44 +24,51 @@ namespace ImageCache;
 class ImageCache
 {
 
+
+	/**
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 * Break between version
+	 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	 */
+
 	/**
 	 * @var string The current directory the class is being employed
-	 */
+	
 	public $cached_directory;
 
 	/**
 	 * @var string The root of the source image
-	 */
+	
 	public $original_root;
 
 	/**
 	 * @var bool If the directory containing the compressed images has already been created
-	 */
+	
 	private $created_dir;
 
 	/**
 	 * @var array Options set by the user for the class
-	 */
+	
 	private $options;
 
 	/**
 	 * @var string|int The original memory limit set by the server
-	 */
+	
 	private $pre_memory_limit;
 
 	/**
 	 * @todo Add description
-	 */
+	
 	static $compressed;
 
 	/**
 	 * @todo Add description
-	 */
+	
 	private $original_image_source;
 
 	/**
 	 * @todo Add description
-	 */
+	
 	public $src;
 
 	/**
@@ -72,7 +79,7 @@ class ImageCache
 	 * @param object|array $opts The options array set by the user, or if none, defaults
 	 * 
 	 * @return self Returns the class object for contiuance
-	 */
+	
 	public function __construct( $directory = null, $create_new_directory = true, $options = array() )
 	{
 		if ( is_null( $directory ) )
@@ -104,7 +111,7 @@ class ImageCache
 	 * Creates the directory in which the cached images will be stored
 	 * 
 	 * @return self Returns the class object for contiuance
-	 */
+	
 	public function createDirectory( $directory_name = null )
 	{
 		if( ! $directory_name || is_null( $directory_name ) )
@@ -132,7 +139,7 @@ class ImageCache
 	 * @param string $src Either a local image, with the relative or absolute directory path set during instatiation, or a URL
 	 * 
 	 * @return array Information on the newly compressed image, including the new source with modtime query, the height, and the width
-	 */ 
+	 
 	public function compress( $source )
 	{
 		// Set variables for this method
@@ -214,7 +221,7 @@ class ImageCache
 	 * @param string $file The name of the file
 	 * 
 	 * @return string The name of the file sans extension
-	 */
+	
 	private function getFilename( $file )
 	{
 		$pathinfo = pathinfo( $file );
@@ -258,7 +265,7 @@ class ImageCache
 	 * @param string $src 
 	 * 
 	 * @return bool Whether or not the image is local
-	 */
+	
 	private function isLocal( $src )
 	{
 		$cururl = strtolower( reset( explode( '/', $_SERVER['SERVER_PROTOCOL'] ) ) ) . '://' . $_SERVER['SERVER_NAME'] . '/';
@@ -273,7 +280,7 @@ class ImageCache
 	 * @param string $dir 
 	 * 
 	 * @return string The 
-	 */
+	
 	private function makeSource( $dir )
 	{
 		$protocol = $_SERVER[ 'SERVER_PROTOCOL' ];
@@ -321,7 +328,7 @@ class ImageCache
 	* A basic debug function for printing output - good if not using unit testing
 	* 
 	* @param mixed $a The input variable
-	*/
+	
 	private function debug( $a )
 	{
 		echo '<pre>';
@@ -333,7 +340,7 @@ class ImageCache
 	 * Memory management function that releases an object's value
 	 * 
 	 * @param mixed $a Any input that is to be released
-	 */
+	
 	private function release( $a )
 	{
 		if( ! $a || is_null( $a ) )
@@ -350,4 +357,5 @@ class ImageCache
 		echo $message . "\n";
 		return $this->debug( $error );
 	}
+	*/
 }
