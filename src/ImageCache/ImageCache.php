@@ -22,14 +22,63 @@
  * http://dtbaker.net/web-development/how-to-cache-images-generated-by-php/
  */
 
-namespace ImageCache;
+// namespace ImageCache;
+
+ob_start();
+
+function debug( $a )
+{
+	echo '<pre>';
+	print_r($a);
+	echo '</pre><hr>';
+}
+
+function dump( $a )
+{
+	echo '<pre>';
+	var_dump($a);
+	echo '</pre><hr>';
+}
 
 class ImageCache
 {
+
+	const memory_value = 128;
+
 	/**
 	 * Stores the image source given for reference
 	 */
-	private $image_source;
+	private $image_src;
+
+	/**
+	 * Stores the server's version of the GD Library, if enabled
+	 */
+	private $gd_version;
+
+	/**
+	 * The memory limit currently established on the server
+	 */
+	private $memory_limit;
+
+	/**
+	 * If the file is remote or not
+	 */
+	private $is_remote;
+
+	/**
+	 * The file mime type
+	 */
+	private $file_mime_type;
+
+	/**
+	 * The name of the cached file
+	 */
+	private $cached_filename;
+
+	/**
+	 * The extension of the file
+	 */
+	private $file_extension;
 
 	/**
 	 * Allow the user to set the options for the setup
@@ -41,32 +90,178 @@ class ImageCache
 	 */
 	public function __construct( $options = array() )
 	{
+		if( ! $this->can_run_image_cache() )
+			$this->error( 'PHP Image Cache must be run on a server with a bundled GD version.' );
 		$defaults = array(
-			'echo' => true, 				// Determines whether the resulting source should be echoed or returned
-			'cache_time' => ( 3600 * 48 ), 	// How long the image should be cached for.  Defaults to 2 days.
-			'keep_local' => true, 			// If the file is remote, this option allows the user to download and store it locally.
-			'cached_image_directory' => dirname( __FILE__ ) . '/image-cache'
+			'echo' => false, 				// Determines whether the resulting source should be echoed or returned
+			'cache_time' => 0, 	// How long the image should be cached for. If the value is 0, then the cache never expires. Default is 0, never expires.
+			'cached_image_directory' => dirname( __FILE__ ) . '/php-image-cache'
 		);
 		$this->options = (object) array_merge( $defaults, $options );
-		$this->make_cache_directory();
-		return $this;
+
+		if( $this->make_cache_directory() )
+			return $this;
+		return $this->error( "\n" . 'Please check server settings.' );
 	}
 
+	public function can_run_image_cache()
+	{
+		$gd_info = gd_info();
+		$this->gd_version = false;
+		if( preg_match( '#bundled \((.+)\)$#i', $gd_info['GD Version'], $matches ) ) {
+			$this->gd_version = (float) $matches[1];
+		} else {
+			$this->gd_version = (float) substr( $gd_info['GD Version'], 0, 3 );
+		}
+		return (bool) $this->gd_version;
+	}
+
+	/**
+	 * Creates the cached directory
+	 */
 	private function make_cache_directory()
 	{
-		if( ! $this->options->keep_local )
-			return;
 		if( is_dir( $this->options->cached_image_directory ) )
-			return;
-		mkdir( $this->options->cached_image_directory );
+			return true;
+		try {
+			mkdir( $this->options->cached_image_directory );
+		} catch (Exception $e) {
+			$this->error( 'There was an error creating the new directory:', $e );
+			return false;
+		}
+		return true;
 	}
 
 	/**
 	 * Outputs the image src, cached and ready to go.
 	 */
-	public function serve( $src )
+	private function serve()
 	{
+		debug( headers_sent() );
+		// $filename = $this->cached_filename;
+		// $is_gzipped = false;
+		// if( file_exists( $this->cached_filename . '.gz' ) ) {
+		// 	$filename = $this->cached_filename . '.gz';
+		// 	$is_gzipped = true;
+		// }
+		// header( 'Content-type: ' . $this->file_mime_type );
+		// header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', filemtime( $filename ) ) . ' GMT' );
+		// header( 'ETag: ' . md5( $filename ) );
+		// if( $is_gzipped ) {
+		// 	echo gzdecode( readgzfile( $filename ) );
+		// 	// return ob_get_clean();
+		// }
+	}
 
+	/**
+	 * Compresses the image.  Public in case the user just wants to compress, and not cache the image.
+	 * 
+	 */
+	private function compress()
+	{
+		// if( file_exists( $this->cached_filename . '.gz' ) )
+		// 	return true;
+		// $image_file = file_get_contents( $this->cached_filename );
+		// $gz_data = gzencode( $image_file, 9 );
+		// return file_put_contents( $this->cached_filename . '.gz', $gz_data );
+		// if( ! file_exists( $_SERVER['DOCUMENT_ROOT'] . '/.htaccess' ) ) {
+			/*
+			?>
+			# BEGIN EXPIRES
+			<IfModule mod_expires.c>
+				ExpiresActive On
+				ExpiresDefault "access plus 10 days"
+				ExpiresByType text/css "access plus 1 week"
+				ExpiresByType text/plain "access plus 1 month"
+				ExpiresByType image/gif "access plus 1 month"
+				ExpiresByType image/png "access plus 1 month"
+				ExpiresByType image/jpeg "access plus 1 month"
+				ExpiresByType application/x-javascript "access plus 1 month"
+				ExpiresByType application/javascript "access plus 1 week"
+				ExpiresByType application/x-icon "access plus 1 year"
+			</IfModule>
+			# END EXPIRES
+
+			<IfModule mod_headers.c>
+				<FilesMatch "\.(js|css|xml|gz)$">
+					Header append Vary Accept-Encoding
+				</FilesMatch>
+				<FilesMatch "\.(ico|jpe?g|png|gif|swf)$">  
+					Header set Cache-Control "public"  
+				</FilesMatch>  
+				<FilesMatch "\.(css)$">  
+					Header set Cache-Control "public"  
+				</FilesMatch>  
+				<FilesMatch "\.(js)$">  
+					Header set Cache-Control "private"  
+				</FilesMatch>  
+				<FilesMatch "\.(x?html?|php)$">  
+					Header set Cache-Control "private, must-revalidate"  
+				</FilesMatch>
+			</IfModule>
+			<?php
+			$content = "\n" . '<ifModule mod_gzip.c>' . "\n";
+			$content .= "\t" . 'mod_gzip_on Yes' . "\n";
+			$content .= "\t" . 'mod_gzip_dechunk Yes' . "\n";
+			$content .= "\t" . 'mod_gzip_item_include mime ^image/.*' . "\n";
+			$content .= "\t" . 'mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*' . "\n";
+			$content .= '</ifModule>' . "\n";
+			file_put_contents( $_SERVER['DOCUMENT_ROOT'] . '/.htaccess', $content );
+		}
+		*/
+		// phpinfo();
+		return true;
+	}
+
+	/**
+	 * Fetch the image as a resource and save it into the cache directory.
+	 * 
+	 * @source http://stackoverflow.com/questions/9839150/image-compression-in-php
+	 */
+	private function fetch_image()
+	{
+		$image_size = getimagesize( $this->image_src );
+		$image_width = $image_size[0];
+		$image_height = $image_size[1];
+		$file_mime_as_ext = end( @explode( '/', $this->file_mime_type ) );
+		$image_dest_func = 'imagecreate';
+		if( $this->gd_version >= 2 )
+			$image_dest_func = 'imagecreatetruecolor';
+		if( in_array( $file_mime_as_ext, array( 'gif', 'jpeg', 'png' ) ) ) {
+			$image_src_func = 'imagecreatefrom' . $this->file_extension;
+			$image_create_func = 'image' . $this->file_extension;
+		} else {
+			// Delegate the image resource to other methods
+		}
+		$image_src = @call_user_func( $image_src_func, $this->image_src );
+		$image_dest = @call_user_func( $image_dest_func, $image_width, $image_height );
+		if( $file_mime_as_ext === 'jpeg' ) {
+			$background = imagecolorallocate( $image_dest, 255, 255, 255 );
+			imagefill( $image_dest, 0, 0, $background );
+		} elseif( in_array( $file_mime_as_ext, array( 'gif', 'png' ) ) ) {
+			imagealphablending( $image_src, false );
+	        imagesavealpha( $image_src, true );
+	        imagealphablending( $image_dest, false );
+	        imagesavealpha( $image_dest, true );
+		}
+		imagecopy( $image_dest, $image_src, 0, 0, 0, 0, $image_width, $image_width );
+		switch( $file_mime_as_ext ) {
+			case 'jpeg':
+				$created = imagejpeg( $image_dest, $this->cached_filename, 85 );
+				break;
+			case 'png':
+				$created = imagepng( $image_dest, $this->cached_filename, 8 );
+				break;
+			case 'gif':
+				$created = imagegif( $image_dest, $this->cached_filename );
+				break;
+			default:
+				return false;
+				break;
+		}
+		imagedestroy( $image_src );
+		imagedestroy( $image_dest );
+		return $created;
 	}
 
 	/**
@@ -74,29 +269,92 @@ class ImageCache
 	 * 
 	 * @scope Public
 	 */
-	private function cache()
+	public function cache( $image )
 	{
+		if( ! is_string( $image ) )
+			$this->error( 'Image source given must be a string.' );
+		$this->image_src = strtolower( $image );
+		$this->pre_set_class_vars();
 
+		// If the image hasn't been server up at this point, fetch, compress, cache, and return
+		// if( ! $this->fetch_image() )
+		// 	$this->error( 'Could not copy image resource.' );
+		if( ! $this->compress() )
+			$this->error( 'Could not compress the image.' );
+		return $this->serve();
 	}
 
 	/**
-	 * Compresses the image.  Public in case the user just wants to compress, and not cache the image.
-	 * 
-	 * @scope Public
+	 * Sets up all class variables in one central function.
 	 */
-	private function compress()
+	private function pre_set_class_vars()
 	{
-
+		$this->set_cached_filename();
+		// if( $this->cached_file_exists() )
+		// 	$this->error( 'File already exists.  Called at line ' . __LINE__ . '.' );
+		$this->set_file_mime_type();
+		$this->set_memory_limit();
+		$this->set_is_remote();
 	}
 
 	/**
-	 * Determines whether the image is remote or being pulled from a local directory
+	 * Quick and dirty way to see if the file is remote or local.  Deeper checking comes
+	 * later if we don't find a compressed & cached version of the file locally.
 	 * 
 	 * @scope Private
 	 */
 	private function is_image_local()
 	{
+		if( file_exists( $this->image_src ) )
+			return true;
+		$parsed_src = parse_url( $this->image_src );
+		if( $_SERVER['HTTP_HOST'] === $parsed_src['host'] )
+			return true;
+		return false;
+	}
 
+	private function set_is_remote()
+	{
+		$this->is_remote = ! $this->is_image_local();
+	}
+
+	private function set_cached_filename()
+	{
+		$pathinfo = pathinfo( $this->image_src );
+		$this->cached_filename = $this->options->cached_image_directory . '/' . md5( basename( $this->image_src ) ) . '.' . $pathinfo['extension'];
+	}
+
+	private function cached_file_exists()
+	{
+		if( file_exists( $this->cached_filename ) )
+			return true;
+		return false;
+	}
+
+	private function set_file_mime_type()
+	{
+		$image_type = exif_imagetype( $this->image_src );
+		if( ! $image_type )
+			$this->error( 'The file you supplied isn\'t a valid image.' );
+		$this->file_mime_type = image_type_to_mime_type( $image_type );
+		$this->file_extension = image_type_to_extension( $image_type, false );
+	}
+
+	private function set_memory_limit()
+	{
+		$this->memory_limit = (int) ini_get('memory_limit');
+	}
+
+	/**
+	 * Displays an error and kills the script
+	 * 
+	 * @param String $status The message to be passed to the native `exit()` function
+	 */
+	private function error( $status = null )
+	{
+		if( is_null( $status ) )
+			$status = 'Unknown Error:';
+		exit( $status );
 	}
 
 
@@ -139,7 +397,7 @@ class ImageCache
 	/**
 	 * @todo Add description
 	
-	private $original_image_source;
+	private $original_image_src;
 
 	/**
 	 * @todo Add description
@@ -218,7 +476,7 @@ class ImageCache
 	public function compress( $source )
 	{
 		// Set variables for this method
-		$this->original_image_source = $source;
+		$this->original_image_src = $source;
 		$filename = basename( $source );
 		$localfile = $this->cached_directory . '/' . $filename;
 
@@ -425,13 +683,6 @@ class ImageCache
 			unset( $b );
 		}
 		unset( $a );
-	}
-
-	private function throwError( $message = null, $error = null ) {
-		if( is_null( $message ) )
-			$message = 'Unknown Error:';
-		echo $message . "\n";
-		return $this->debug( $error );
 	}
 	*/
 }
