@@ -1,6 +1,6 @@
 {
  "name": "nielse63/phpimagecache",
- "version" : "0.1.2-12-gedcc5f9",
+ "version" : "1.0.0",
  "type": "library",
  "description": "Image Cache is a very simple PHP module that accepts an image source and will compress and cache the file, move it to a new directory, and return the cache source for the image.",
  "keywords": ["cache","caching","php cache","image cache"],
@@ -13,9 +13,9 @@
             "homepage": "http://312development.com",
             "role": "Developer"
         }
-    ], 
+    ],
     "require": {
-        "php": ">=5.3.0"        
+        "php": ">=5.3.0"
     },
     "autoload": {
         "psr-0": {
