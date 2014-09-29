@@ -1,6 +1,6 @@
 *.tmp
-docs
-docs/*
+# docs
+# docs/*
 compressed
 compressed/*
 src/ImageCache/php-image-cache

@@ -7,22 +7,10 @@
  * @package PHP Image Compressor & Caching
  * @author Erik Nielsen <erik@312development.com | @erikkylenielsen>
  * @license http://freedomdefined.org/Licenses/CC-BY MIT
- * @version GIT: $Id$
- *
- * @todo I have a laundry list of things I'd like to complete.  Among them:
- *  - Ensure that 304 headers are being returned each time.
- *  - Code cleanup and ensure PS2 standards are being met
- *  - Improve documentation
- *  - Write better unit tests for CI
- *  - Continue to optimize for memory usage
- *  - Create a method that returns new images sizes
- *  - Create a method that resizes the image
- *
+ * @version GIT: 1.0.0
  *
  * http://dtbaker.net/web-development/how-to-cache-images-generated-by-php/
  */
-
-// namespace ImageCache;
 
 ob_start();
 
@@ -92,7 +80,10 @@ class ImageCache
 	private $cached_filesize;
 
 	/**
-	 * Constructor. Passes $options as a parameter
+	 * Constructor function
+	 *
+	 * @param array $options Options include the keys 'echo' (boolean) and 'cache_time' (integer).  'cache_time' is currently not employed, but in place for future reference.
+	 * @return object Returns the class object for the user to reference it in the future.
 	 */
 	public function __construct( $options = array() )
 	{
@@ -106,10 +97,14 @@ class ImageCache
 		if(!$this->cached_image_directory) {
 			$this->cached_image_directory = dirname(__FILE__) . '/php-image-cache';
 		}
-
 		return $this;
 	}
 
+	/**
+	 * Validates whether the user can use this class or not, based on the GD Version their server is carrying.
+	 *
+	 * @return bool
+	 */
 	public function can_run_image_cache()
 	{
 		$gd_info = gd_info();
@@ -123,9 +118,9 @@ class ImageCache
 	}
 
 	/**
-	 * Caches the image.  When using this method, the image will be compressed and then cached
+	 * Caches the image.  When using this method, the image will be compressed and then cached.
 	 *
-	 * @scope Public
+	 * @return string The source file to be referenced after compressing an image
 	 */
 	public function cache( $image )
 	{
@@ -144,6 +139,9 @@ class ImageCache
 			}
 			return $this->docroot_to_url();
 		}
+		if($this->is_remote) {
+			$this->download_image();
+		}
 		if( ! $this->fetch_image() )
 			$this->error( 'Could not copy image resource.' );
 		$this->src_filesize = filesize( $this->image_src );
@@ -155,7 +153,28 @@ class ImageCache
 	}
 
 	/**
+	 * Downloads a remote file and stores it locally to be used for compression
+	 */
+	private function download_image()
+	{
+		$image_resource = file_get_contents( $this->image_src );
+		$basename = basename($this->image_src);
+		if( ! stripos( $basename, '.' . $this->file_extension ) ) {
+			$basename .= '.' . $this->file_extension;
+		}
+		$image_location = dirname( $this->cached_image_directory ) . '/' . $basename;
+		if( ! file_exists( $image_location ) ) {
+			if( ! file_put_contents( $image_location, $image_resource ) ) {
+				$this->error( 'Could not download the remote image' );
+			}
+		}
+		$this->image_src = $image_location;
+	}
+
+	/**
 	 * Creates the cached directory
+	 *
+	 * @return bool If the directory was successfully created or not
 	 */
 	private function make_cache_directory()
 	{
@@ -175,6 +194,7 @@ class ImageCache
 	 * Fetch the image as a resource and save it into the cache directory.
 	 *
 	 * @source http://stackoverflow.com/questions/9839150/image-compression-in-php
+	 * @return If the image was successfully created or not
 	 */
 	private function fetch_image()
 	{
@@ -250,8 +270,8 @@ class ImageCache
 	 */
 	private function pre_set_class_vars()
 	{
-		$this->set_cached_filename();
 		$this->set_file_mime_type();
+		$this->set_cached_filename();
 		$this->set_memory_limit();
 		$this->set_is_remote();
 	}
@@ -313,7 +333,7 @@ class ImageCache
 	private function set_cached_filename()
 	{
 		$pathinfo = pathinfo( $this->image_src );
-		$this->cached_filename = $this->cached_image_directory . '/' . md5( basename( $this->image_src ) ) . '.' . $pathinfo['extension'];
+		$this->cached_filename = $this->cached_image_directory . '/' . md5( basename( $this->image_src ) ) . '.' . $this->file_extension;
 	}
 
 	/**
@@ -321,6 +341,9 @@ class ImageCache
 	 */
 	private function cached_file_exists()
 	{
+		if($this->is_remote) {
+			$this->download_image();
+		}
 		if( file_exists( $this->cached_filename ) )
 			return true;
 		return false;

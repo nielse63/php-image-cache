@@ -7,7 +7,7 @@
  * @package PHP Image Compressor & Caching
  * @author Erik Nielsen <erik@312development.com | @erikkylenielsen>
  * @license http://freedomdefined.org/Licenses/CC-BY MIT
- * @version GIT: $Id$
+ * @version GIT: 1.0.0
  *
  * http://dtbaker.net/web-development/how-to-cache-images-generated-by-php/
  */
