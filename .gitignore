@@ -1,3 +1,5 @@
 *.tmp
 docs
 compressed
+src/ImageCache/php-image-cache
+demo/images/cached
