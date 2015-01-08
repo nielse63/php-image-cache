@@ -224,7 +224,7 @@ class ImageCache
 	        imagealphablending( $image_dest, false );
 	        imagesavealpha( $image_dest, true );
 		}
-		imagecopy( $image_dest, $image_src, 0, 0, 0, 0, $image_width, $image_width );
+		imagecopy( $image_dest, $image_src, 0, 0, 0, 0, $image_width, $image_height );
 		switch( $file_mime_as_ext ) {
 			case 'jpeg':
 				$created = imagejpeg( $image_dest, $this->cached_filename, 85 );
