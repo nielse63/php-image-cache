@@ -24,6 +24,12 @@ class ImageCache {
     public $image_src;
 
     /**
+     * The version of the source image to which will be part of the cached filename (used to "force" browser to download a new version of the image).
+     * @var string
+     */
+    public $image_src_version;
+
+    /**
      * If the file is remote or not
      */
     public $is_remote;
@@ -37,6 +43,12 @@ class ImageCache {
      * The location of the cached images directory
      */
     public $cached_image_directory;
+
+    /**
+     * The version of the cached directory to which will be part of the cached filename (used to "force" browser to download a new version of the entire cache directory).
+     * @var string
+     */
+    public $cached_directory_version;
 
     /**
      * The URL to access the cached images directory
@@ -106,16 +118,18 @@ class ImageCache {
                 "png" => 8
             ),
             "cached_image_directory" => dirname(__FILE__) . "/php-image-cache",
-            "cached_image_url" => ""
+            "cached_image_url" => "",
+            "cached_directory_version" => ""
         );
         $this->options = (object) array_merge($defaults, $options);
 
         $this->cached_image_directory = $this->options->cached_image_directory;
         $this->cached_image_url = rtrim($this->options->cached_image_url, "/");
         $this->quality = (object) [
-            "jpeg" => $this->options->quality["jpeg"],
-            "png" => $this->options->quality["png"]
+                    "jpeg" => $this->options->quality["jpeg"],
+                    "png" => $this->options->quality["png"]
         ];
+        $this->cached_directory_version = $this->options->cached_directory_version;
 
         return $this;
     }
@@ -141,11 +155,12 @@ class ImageCache {
      *
      * @return string The source file to be referenced after compressing an image
      */
-    public function cache($image) {
+    public function cache($image, $version = "") {
         if (!is_string($image))
             $this->error('Image source given must be a string.');
 
         $this->image_src = strtolower($image);
+        $this->image_src_version = $version;
         $this->pre_set_class_vars();
 
         // If the image hasn't been server up at this point, fetch, compress, cache, and return
@@ -346,7 +361,7 @@ class ImageCache {
      */
     private function set_cached_filename() {
         $pathinfo = pathinfo($this->image_src);
-        $this->cached_filename = $this->cached_image_directory . '/' . md5(basename($this->image_src)) . '.' . $this->file_extension;
+        $this->cached_filename = $this->cached_image_directory . '/' . md5($this->cached_directory_version . basename($this->image_src) . $this->image_src_version) . '.' . $this->file_extension;
     }
 
     /**
