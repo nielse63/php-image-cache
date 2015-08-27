@@ -102,8 +102,8 @@ class ImageCache {
             'echo' => false, // Determines whether the resulting source should be echoed or returned
             'cache_time' => 0, // How long the image should be cached for. If the value is 0, then the cache never expires. Default is 0, never expires.m
             "quality" => array(// Determines the quality of cache output
-                "jpeg" => 60,
-                "png" => 6
+                "jpeg" => 85,
+                "png" => 8
             ),
             "cached_image_directory" => dirname(__FILE__) . "/php-image-cache",
             "cached_image_url" => ""
