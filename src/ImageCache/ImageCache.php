@@ -106,15 +106,15 @@ class ImageCache {
                 "png" => 6
             ),
             "cached_image_directory" => dirname(__FILE__) . "/php-image-cache",
-            "cached_image_url" => dirname(__FILE__) . "/php-image-cache"
+            "cached_image_url" => ""
         );
         $this->options = (object) array_merge($defaults, $options);
 
         $this->cached_image_directory = $this->options->cached_image_directory;
         $this->cached_image_url = rtrim($this->options->cached_image_url, "/");
-        $this->quality = [
-            "jpeg" => $this->options->quality->jpeg,
-            "png" => $this->options->quality->png
+        $this->quality = (object) [
+            "jpeg" => $this->options->quality["jpeg"],
+            "png" => $this->options->quality["png"]
         ];
 
         return $this;
@@ -242,10 +242,10 @@ class ImageCache {
         imagecopy($image_dest, $image_src, 0, 0, 0, 0, $image_width, $image_height);
         switch ($file_mime_as_ext) {
             case 'jpeg':
-                $created = imagejpeg($image_dest, $this->cached_filename, $this->quality["jpeg"]);
+                $created = imagejpeg($image_dest, $this->cached_filename, $this->quality->jpeg);
                 break;
             case 'png':
-                $created = imagepng($image_dest, $this->cached_filename, $this->quality["png"]);
+                $created = imagepng($image_dest, $this->cached_filename, $this->quality->png);
                 break;
             case 'gif':
                 $created = imagegif($image_dest, $this->cached_filename);
@@ -263,17 +263,20 @@ class ImageCache {
     /**
      * Returns
      *
-     * @param string $url The url to check validate
+     * @param string $src The url to check validate
      * @return string The URL of the image
      */
     private function docroot_to_url($src = null) {
         if (is_null($src)) {
             $src = $this->cached_filename;
         }
-//        $url = $_SERVER['HTTP_HOST'];
-//        $image_path = str_replace($_SERVER['DOCUMENT_ROOT'], '', $src);
-//        $image_url = $url . substr($image_path, 1);
-        $image_url = $this->cached_image_url . "/" . basename($src);
+        if (empty($this->cached_image_url)) {
+            $url = $_SERVER['HTTP_HOST'];
+            $image_path = str_replace($_SERVER['DOCUMENT_ROOT'], '', $src);
+            $image_url = $url . substr($image_path, 1);
+        } else {
+            $image_url = $this->cached_image_url . "/" . basename($src);
+        }
         if ($this->link_is_broken($image_url)) {
             $this->error('Final image URL is broken');
         }
