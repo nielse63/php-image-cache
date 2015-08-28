@@ -125,10 +125,10 @@ class ImageCache {
 
         $this->cached_image_directory = $this->options->cached_image_directory;
         $this->cached_image_url = rtrim($this->options->cached_image_url, "/");
-        $this->quality = (object) [
+        $this->quality = (object) array(
                     "jpeg" => $this->options->quality["jpeg"],
                     "png" => $this->options->quality["png"]
-        ];
+        );
         $this->cached_directory_version = $this->options->cached_directory_version;
 
         return $this;
