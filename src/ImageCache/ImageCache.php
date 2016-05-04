@@ -67,6 +67,11 @@ class ImageCache {
     public $quality;
 
     /**
+     * check link of cached file if is valid by curl
+     */
+    public $check_link_cached;
+
+    /**
      * Stores the server's version of the GD Library, if enabled
      */
     private $gd_version;
@@ -100,7 +105,7 @@ class ImageCache {
      * The extension of the file
      */
     private $cached_filesize;
-
+    
     /**
      * Constructor function
      *
@@ -111,6 +116,7 @@ class ImageCache {
         if (!$this->can_run_image_cache())
             $this->error('PHP Image Cache must be run on a server with a bundled GD version.');
         $defaults = array(
+            'check_link_cached' => true, // Check link of cached file if is valid by curl
             'echo' => false, // Determines whether the resulting source should be echoed or returned
             'cache_time' => 0, // How long the image should be cached for. If the value is 0, then the cache never expires. Default is 0, never expires.m
             "quality" => array(// Determines the quality of cache output
@@ -122,7 +128,6 @@ class ImageCache {
             "cached_directory_version" => ""
         );
         $this->options = (object) array_merge($defaults, $options);
-
         $this->cached_image_directory = $this->options->cached_image_directory;
         $this->cached_image_url = rtrim($this->options->cached_image_url, "/");
         $this->quality = (object) array(
@@ -130,6 +135,7 @@ class ImageCache {
                     "png" => $this->options->quality["png"]
         );
         $this->cached_directory_version = $this->options->cached_directory_version;
+        $this->check_link_cached = $this->options->check_link_cached;
 
         return $this;
     }
@@ -156,6 +162,10 @@ class ImageCache {
      * @return string The source file to be referenced after compressing an image
      */
     public function cache($image, $version = "") {
+
+        if ( ! is_writable($this->cached_image_directory))
+            $this->error( $this->cached_image_directory . ' must writable!');
+
         if (!is_string($image))
             $this->error('Image source given must be a string.');
 
@@ -286,9 +296,8 @@ class ImageCache {
             $src = $this->cached_filename;
         }
         if (empty($this->cached_image_url)) {
-            $url = $_SERVER['HTTP_HOST'];
             $image_path = str_replace($_SERVER['DOCUMENT_ROOT'], '', $src);
-            $image_url = $url . substr($image_path, 1);
+            $image_url =  $_SERVER['REQUEST_SCHEME']."://" . $_SERVER['HTTP_HOST'].'/' . substr($image_path, 1);
         } else {
             $image_url = $this->cached_image_url . "/" . basename($src);
         }
@@ -315,8 +324,9 @@ class ImageCache {
      * @return bool Indicates whether or not the link is broken
      */
     private function link_is_broken($url) {
-        if (!function_exists('curl_init'))
+        if (!$this->check_link_cached || !function_exists('curl_init'))
             return false;
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
