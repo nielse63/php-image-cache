@@ -28,6 +28,7 @@
 	<img src="<?php echo $cached_src_one; ?>" alt="">
 	<hr>
 	<?php
+		$imagecache->check_link_cached = false;
 		$cached_src_two = $imagecache->cache( 'images/unsplash2.jpeg' );
 		echo '<p>Original file size: ' . filesize($imagecache->image_src) . ' bytes</p>';
 		echo '<p>PHPImageCach-ified file size: ' . filesize($imagecache->cached_filename) . ' bytes</p>';
