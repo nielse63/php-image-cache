@@ -159,7 +159,7 @@ class ImageCache {
         if (!is_string($image))
             $this->error('Image source given must be a string.');
 
-        $this->image_src = strtolower($image);
+        $this->image_src = $image;
         $this->image_src_version = $version;
         $this->pre_set_class_vars();
 
