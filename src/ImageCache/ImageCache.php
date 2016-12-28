@@ -162,7 +162,7 @@ class ImageCache {
      * @return string The source file to be referenced after compressing an image
      */
     public function cache($image, $version = "") {
-
+ob_start();
         if ( ! is_writable($this->cached_image_directory))
             $this->error( $this->cached_image_directory . ' must writable!');
 
@@ -178,8 +178,10 @@ class ImageCache {
             $this->src_filesize = filesize($this->image_src);
             $this->cached_filesize = filesize($this->cached_filename);
             if ($this->src_filesize < $this->cached_filesize) {
+                ob_end_clean();
                 return $this->docroot_to_url($this->image_src);
             }
+            ob_end_clean();
             return $this->docroot_to_url();
         }
         if ($this->is_remote) {
@@ -190,8 +192,10 @@ class ImageCache {
         $this->src_filesize = filesize($this->image_src);
         $this->cached_filesize = filesize($this->cached_filename);
         if ($this->src_filesize < $this->cached_filesize) {
+            ob_end_clean();
             return $this->docroot_to_url($this->image_src);
         }
+        ob_end_clean();
         return $this->docroot_to_url();
     }
 
@@ -401,7 +405,7 @@ class ImageCache {
      * Stores the original value of the server's memory limit
      */
     private function set_memory_limit() {
-        $this->memory_limit = (int) ini_get('memory_limit');
+        $this->memory_limit = ini_get('memory_limit');
     }
 
     /**
