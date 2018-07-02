@@ -40,7 +40,7 @@ class ImageCacheTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testCanRunImageCache()
 	{
-		$imagecache = new ImageCache();
+		$imagecache = new ImageCache\ImageCache();
 		$this->assertTrue( $imagecache->can_run_image_cache() );
 	}
 }
