@@ -17,7 +17,7 @@
 </head>
 <body>
 	<?php
-		$imagecache = new ImageCache();
+		$imagecache = new ImageCache\ImageCache();
 		$imagecache->cached_image_directory = dirname(__FILE__) . '/images/cached';
 
 		$cached_src_one = $imagecache->cache( 'images/unsplash1.jpeg' );

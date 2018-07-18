@@ -12,6 +12,9 @@
  *
  * http://dtbaker.net/web-development/how-to-cache-images-generated-by-php/
  */
+
+namespace ImageCache;
+
 ob_start();
 
 class ImageCache {

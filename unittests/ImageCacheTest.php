@@ -20,18 +20,18 @@ class ImageCacheTest extends PHPUnit_Framework_TestCase
      */
 	public function testClassDoesHaveAttributes()
 	{
-		$this->assertClassHasAttribute( 'image_src', 'ImageCache' );
-		$this->assertClassHasAttribute( 'is_remote', 'ImageCache' );
-		$this->assertClassHasAttribute( 'options', 'ImageCache' );
-		$this->assertClassHasAttribute( 'cached_image_directory', 'ImageCache' );
-		$this->assertClassHasAttribute( 'cached_filename', 'ImageCache' );
-		$this->assertClassHasAttribute( 'gd_version', 'ImageCache' );
-		$this->assertClassHasAttribute( 'memory_limit', 'ImageCache' );
-		$this->assertClassHasAttribute( 'file_mime_type', 'ImageCache' );
-		$this->assertClassHasAttribute( 'file_extension', 'ImageCache' );
-		$this->assertClassHasAttribute( 'local_image_src', 'ImageCache' );
-		$this->assertClassHasAttribute( 'src_filesize', 'ImageCache' );
-		$this->assertClassHasAttribute( 'cached_filesize', 'ImageCache' );
+		$this->assertClassHasAttribute( 'image_src', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'is_remote', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'options', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'cached_image_directory', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'cached_filename', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'gd_version', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'memory_limit', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'file_mime_type', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'file_extension', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'local_image_src', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'src_filesize', 'ImageCache\ImageCache' );
+		$this->assertClassHasAttribute( 'cached_filesize', 'ImageCache\ImageCache' );
 	}
 
 	/**
@@ -40,7 +40,7 @@ class ImageCacheTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testCanRunImageCache()
 	{
-		$imagecache = new ImageCache();
+		$imagecache = new ImageCache\ImageCache();
 		$this->assertTrue( $imagecache->can_run_image_cache() );
 	}
 }
