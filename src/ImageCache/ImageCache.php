@@ -248,7 +248,8 @@ ob_start();
         $image_size = getimagesize($this->image_src);
         $image_width = $image_size[0];
         $image_height = $image_size[1];
-        $file_mime_as_ext = end(@explode('/', $this->file_mime_type));
+        $mime_array = explode('/', $this->file_mime_type);
+        $file_mime_as_ext = end($mime_array);
         $image_dest_func = 'imagecreate';
         if ($this->gd_version >= 2)
             $image_dest_func = 'imagecreatetruecolor';
@@ -259,9 +260,9 @@ ob_start();
             $this->error('The image you supply must have a .gif, .jpg/.jpeg, or .png extension.');
             return false;
         }
+        $this->increase_memory_limit();
         $image_src = @call_user_func($image_src_func, $this->image_src);
         $image_dest = @call_user_func($image_dest_func, $image_width, $image_height);
-        $this->increase_memory_limit();
         if ($file_mime_as_ext === 'jpeg') {
             $background = imagecolorallocate($image_dest, 255, 255, 255);
             imagefill($image_dest, 0, 0, $background);
