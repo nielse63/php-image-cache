@@ -16,7 +16,7 @@
 namespace ImageCache;
 
 ob_start();
-
+date_default_timezone_set('UTC');
 class ImageCache {
 
     const memory_value = 128;
@@ -109,10 +109,14 @@ class ImageCache {
      */
     private $cached_filesize;
     
+	    /**
+     * 
+     */
+    public $is_in_server;
     /**
      * Constructor function
      *
-     * @param array $options Options include the keys 'echo' (boolean) and 'cache_time' (integer).  'cache_time' is currently not employed, but in place for future reference.
+     * @param array $options Options include the keys 'echo' (boolean) and 'cache_time' (integer).  
      * @return object Returns the class object for the user to reference it in the future.
      */
     public function __construct($options = array()) {
@@ -121,7 +125,7 @@ class ImageCache {
         $defaults = array(
             'check_link_cached' => true, // Check link of cached file if is valid by curl
             'echo' => false, // Determines whether the resulting source should be echoed or returned
-            'cache_time' => 0, // How long the image should be cached for. If the value is 0, then the cache never expires. Default is 0, never expires.m
+            'cache_time' => 86400, // How long the image should be cached for. If the value is 0, then the cache never expires. Default is 0, never expires.second
             "quality" => array(// Determines the quality of cache output
                 "jpeg" => 85,
                 "png" => 8
@@ -139,7 +143,7 @@ class ImageCache {
         );
         $this->cached_directory_version = $this->options->cached_directory_version;
         $this->check_link_cached = $this->options->check_link_cached;
-
+		$this->is_in_server=0;
         return $this;
     }
 
@@ -188,7 +192,11 @@ ob_start();
             return $this->docroot_to_url();
         }
         if ($this->is_remote) {
+		$this->img_search(md5($this->image_src),dirname($this->cached_image_directory));
+		if(!$this->is_in_server){
             $this->download_image();
+		}
+		$this->is_in_server=0;
         }
         if (!$this->fetch_image())
             $this->error('Could not copy image resource.');
@@ -207,7 +215,7 @@ ob_start();
      */
     private function download_image() {
         $image_resource = file_get_contents($this->image_src);
-        $basename = basename($this->image_src);
+        $basename ="_".date("d-m-Y-H")."_".$this->image_src;
         if (!stripos($basename, '.' . $this->file_extension)) {
             $basename .= '.' . $this->file_extension;
         }
@@ -379,16 +387,20 @@ ob_start();
      */
     private function set_cached_filename() {
         $pathinfo = pathinfo($this->image_src);
-        $this->cached_filename = $this->cached_image_directory . '/' . md5($this->cached_directory_version . basename($this->image_src) . $this->image_src_version) . '.' . $this->file_extension;
+        $this->cached_filename = $this->cached_image_directory . '/'. "_".date("d-m-Y-H")."_". md5($this->cached_directory_version.$this->image_src) . '.' . $this->file_extension;
     }
 
     /**
      * Simply determines if a compressed of the image that's sent is already compressed or not.
      */
     private function cached_file_exists() {
-        if ($this->is_remote) {
+        $this->img_search(md5($this->image_src),dirname($this->cached_image_directory));
+		if(!$this->is_in_server){
+
+		if ($this->is_remote) {
             $this->download_image();
-        }
+        }}
+		$this->is_in_server=0;
         if (file_exists($this->cached_filename))
             return true;
         return false;
@@ -437,5 +449,78 @@ ob_start();
             $status = 'Unknown Error:';
         exit($status);
     }
+
+    /**
+     * 
+     *
+     * 
+     */
+	public function img_search($search_key,$directory=""){
+	if(isset($directory)){
+	$searchDirectory=$directory;
+	}else{
+	$searchDirectory = $this->cached_image_directory;
+	}
+if ($handle = opendir("$searchDirectory") or die ("Directory not open!")) {
+	if(isset($search_key)){
+    while (false !== ($file = readdir($handle))) {
+   
+    $search_word = preg_match("/$search_key/i", "$file");
+
+     if(is_file($searchDirectory."/".$file) && $search_word) { //eğer bir dosya ise ve arama terimini içeriyorsa
+
+    $filename = str_replace("/$search_key/i","<i><b>$search_key</b></i>",$file);
+		$this->cached_filename= $this->cached_image_directory . '/'.$file;
+		
+		$this->is_in_server=1;
+		
+		$fileExplode = explode("_", $file);
+		$fileExplode[1]=date("d-m-Y-H");
+        $filename= $searchDirectory . '/'.implode("_", $fileExplode);
+		rename ($this->cached_filename, $filename);
+		$this->cached_filename= $filename;
+
+		
+
+       }
+
+    } //while end
+	}
+    closedir($handle);
+}
+
+}
+
+    /**
+     * 
+     *
+     * 
+     */
+	public function img_del_older($directory=""){
+	if(isset($directory)){
+	$searchDirectory=$directory;
+	}else{
+	$searchDirectory = $this->cached_image_directory;
+	}if ($handle = opendir("$searchDirectory") or die ("Directory not open!")) {
+
+    while (false !== ($file = readdir($handle))) {
+			$fileExplode = explode("_", $file);
+		$passingTime=strtotime(date("d-m-Y-H"))-strtotime($fileExplode[1]);		
+		if($this->options->cache_time>$this->cache_time){
+			unlink($searchDirectory . '/'.$file);
+		}
+
+
+    } //while end
+    closedir($handle);
+}
+
+}
+
+
+
+
+
+
 
 }
