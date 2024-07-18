@@ -117,14 +117,15 @@ class ImageCache {
      */
     public function __construct($options = array()) {
         if (!$this->can_run_image_cache())
-            $this->error('PHP Image Cache must be run on a server with a bundled GD version.');
+           $this->error('PHP Image Cache must be run on a server with a bundled GD version.');
         $defaults = array(
-            'check_link_cached' => true, // Check link of cached file if is valid by curl
-            'echo' => false, // Determines whether the resulting source should be echoed or returned
-            'cache_time' => 0, // How long the image should be cached for. If the value is 0, then the cache never expires. Default is 0, never expires.m
-            "quality" => array(// Determines the quality of cache output
+            'check_link_cached' => true,
+            'echo' => false,
+            'cache_time' => 0,
+            "quality" => array(
                 "jpeg" => 85,
-                "png" => 8
+                "png" => 8,
+                "webp" => 60  // WebP için varsayılan kalite eklendi
             ),
             "cached_image_directory" => dirname(__FILE__) . "/php-image-cache",
             "cached_image_url" => "",
@@ -135,7 +136,8 @@ class ImageCache {
         $this->cached_image_url = rtrim($this->options->cached_image_url, "/");
         $this->quality = (object) array(
                     "jpeg" => $this->options->quality["jpeg"],
-                    "png" => $this->options->quality["png"]
+                    "png" => $this->options->quality["png"],
+                    "webp" => $this->options->quality["webp"]
         );
         $this->cached_directory_version = $this->options->cached_directory_version;
         $this->check_link_cached = $this->options->check_link_cached;
@@ -165,9 +167,9 @@ class ImageCache {
      * @return string The source file to be referenced after compressing an image
      */
     public function cache($image, $version = "") {
-ob_start();
-        if ( ! is_writable($this->cached_image_directory))
-            $this->error( $this->cached_image_directory . ' must writable!');
+        ob_start();
+        if (!is_writable($this->cached_image_directory))
+            $this->error($this->cached_image_directory . ' must be writable!');
 
         if (!is_string($image))
             $this->error('Image source given must be a string.');
@@ -176,16 +178,22 @@ ob_start();
         $this->image_src_version = $version;
         $this->pre_set_class_vars();
 
-        // If the image hasn't been server up at this point, fetch, compress, cache, and return
+        // If the image hasn't been served up at this point, fetch, compress, cache, and return
         if ($this->cached_file_exists()) {
             $this->src_filesize = filesize($this->image_src);
             $this->cached_filesize = filesize($this->cached_filename);
             if ($this->src_filesize < $this->cached_filesize) {
                 ob_end_clean();
-                return $this->docroot_to_url($this->image_src);
+                return [
+                    'url' => $this->docroot_to_url($this->image_src),
+                    'filename' => basename($this->image_src)
+                ];
             }
             ob_end_clean();
-            return $this->docroot_to_url();
+            return [
+                'url' => $this->docroot_to_url(),
+                'filename' => basename($this->cached_filename)
+            ];
         }
         if ($this->is_remote) {
             $this->download_image();
@@ -196,10 +204,16 @@ ob_start();
         $this->cached_filesize = filesize($this->cached_filename);
         if ($this->src_filesize < $this->cached_filesize) {
             ob_end_clean();
-            return $this->docroot_to_url($this->image_src);
+            return [
+                'url' => $this->docroot_to_url($this->image_src),
+                'filename' => basename($this->image_src)
+            ];
         }
         ob_end_clean();
-        return $this->docroot_to_url();
+        return [
+            'url' => $this->docroot_to_url(),
+            'filename' => basename($this->cached_filename)
+        ];
     }
 
     /**
@@ -253,11 +267,11 @@ ob_start();
         $image_dest_func = 'imagecreate';
         if ($this->gd_version >= 2)
             $image_dest_func = 'imagecreatetruecolor';
-        if (in_array($file_mime_as_ext, array('gif', 'jpeg', 'png'))) {
-            $image_src_func = 'imagecreatefrom' . $this->file_extension;
-            $image_create_func = 'image' . $this->file_extension;
+        if (in_array($file_mime_as_ext, array('gif', 'jpeg', 'png', 'webp'))) {
+            $image_src_func = 'imagecreatefrom' . $file_mime_as_ext;
+            $image_create_func = 'image' . $file_mime_as_ext;
         } else {
-            $this->error('The image you supply must have a .gif, .jpg/.jpeg, or .png extension.');
+            $this->error('The image you supply must have a .gif, .jpg/.jpeg, .png, or .webp extension.');
             return false;
         }
         $this->increase_memory_limit();
@@ -266,7 +280,7 @@ ob_start();
         if ($file_mime_as_ext === 'jpeg') {
             $background = imagecolorallocate($image_dest, 255, 255, 255);
             imagefill($image_dest, 0, 0, $background);
-        } elseif (in_array($file_mime_as_ext, array('gif', 'png'))) {
+        } elseif (in_array($file_mime_as_ext, array('gif', 'png', 'webp'))) {
             imagealphablending($image_src, false);
             imagesavealpha($image_src, true);
             imagealphablending($image_dest, false);
@@ -282,6 +296,9 @@ ob_start();
                 break;
             case 'gif':
                 $created = imagegif($image_dest, $this->cached_filename);
+                break;
+            case 'webp':
+                $created = imagewebp($image_dest, $this->cached_filename, $this->quality->webp);
                 break;
             default:
                 return false;
@@ -394,6 +411,8 @@ ob_start();
         return false;
     }
 
+    
+
     /**
      * Stores the file's mime type and validates that the file being compressed is indeed an image.
      */
@@ -403,6 +422,11 @@ ob_start();
             $this->error('The file you supplied isn\'t a valid image.');
         $this->file_mime_type = image_type_to_mime_type($image_type);
         $this->file_extension = image_type_to_extension($image_type, false);
+        
+        // WebP için özel işlem
+        if ($this->file_mime_type == 'image/webp') {
+            $this->file_extension = 'webp';
+        }
     }
 
     /**
@@ -410,6 +434,35 @@ ob_start();
      */
     private function set_memory_limit() {
         $this->memory_limit = ini_get('memory_limit');
+    }
+
+    /**
+     * Set quality for a specific image type
+     *
+     * @param string $type Image type (jpeg, png, or webp)
+     * @param int $value Quality value
+     * @return void
+     */
+    public function setQuality($type, $value) {
+        if (property_exists($this->quality, $type)) {
+            $this->quality->$type = $value;
+        } else {
+            $this->error("Invalid image type for quality setting.");
+        }
+    }
+
+    /**
+     * Get current quality setting for a specific image type
+     *
+     * @param string $type Image type (jpeg, png, or webp)
+     * @return int Current quality value
+     */
+    public function getQuality($type) {
+        if (property_exists($this->quality, $type)) {
+            return $this->quality->$type;
+        } else {
+            $this->error("Invalid image type for quality setting.");
+        }
     }
 
     /**
